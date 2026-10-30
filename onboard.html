@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Onboard customer — MyTomTom</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Playbook Design Tokens ─────────────────────────────────────────── */
+    :root {
+      --ui-surface-0:             #FFFFFF;
+      --ui-surface-1:             #F2F2F2;
+      --ui-surface-2:             #E5E5E5;
+      --ui-surface-primary:       #000000;
+      --ui-surface-brand-red:     #DF1B12;
+      --ui-surface-info-accent:   #F5F8FA;
+      --ui-surface-success-accent:#C9ECDD;
+      --ui-surface-warning-accent:#FDCF53;
+      --ui-surface-red-accent:    #FFF0EF;
+      --ui-surface-info:          #004B7F;
+      --ui-surface-success:       #00A65E;
+      --ui-surface-disabled-light-em: #E5E5E5;
+
+      --ui-text-high-em:          #000000;
+      --ui-text-med-em:           #5C5C5C;
+      --ui-text-low-em:           #959595;
+      --ui-text-disabled:         #B2B2B2;
+      --ui-text-white:            #FFFFFF;
+      --ui-text-primary-on-base:  #000000;
+      --ui-text-info-on-base:     #004B7F;
+      --ui-text-info-on-accent-light: #003255;
+      --ui-text-success-on-accent-light: #006A3C;
+      --ui-text-red-on-base:      #DF1B12;
+      --ui-text-red-on-accent-light: #A2140D;
+
+      --ui-border-base-em:        #F2F2F2;
+      --ui-border-low-em:         #E5E5E5;
+      --ui-border-med-em:         #CCCCCC;
+      --ui-border-high-em:        #B2B2B2;
+      --ui-border-primary-high-em:#000000;
+      --ui-border-info-med-em:    #C9D9E4;
+      --ui-border-success-med-em: #A0DDC3;
+      --ui-border-warning-high-em:#FEE298;
+      --ui-border-red-med-em:     #FBD4D2;
+      --ui-border-red-high-em:    #DF1B12;
+
+      --ui-focus-ring: 0 0 0 4px #004B7F, inset 0 0 0 1px #FFFFFF;
+
+      --ui-elevation-e1: 0px 1px 2px -1px rgba(17,12,34,0.08);
+      --ui-elevation-e2: 0px 2px 4px -2px rgba(17,12,34,0.12);
+      --ui-elevation-e3: 0px 6px 16px -6px rgba(17,12,34,0.1);
+      --ui-elevation-e5: 0px 20px 24px -10px rgba(17,12,34,0.1);
+
+      --ui-radius-sm:   5px;
+      --ui-radius-md:   10px;
+      --ui-radius-lg:   20px;
+      --ui-radius-card: 24px;
+      --ui-radius-xl:   40px;
+
+      --ui-font-heading: 'Gilroy', 'Nunito', 'Segoe UI', sans-serif;
+      --ui-font-body:    'Proxima Nova', 'Inter', 'Segoe UI', sans-serif;
+      --ui-font-code:    'Fira Code', ui-monospace, monospace;
+
+      /* Prototype-only annotation colours (deliberately outside Playbook) */
+      --note-bg:     #F4F0FF;
+      --note-border: #8B5CF6;
+      --note-text:   #3B2A6B;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    [hidden] { display: none !important; }
+
+    html, body {
+      font-family: var(--ui-font-body);
+      font-size: 16px;
+      color: var(--ui-text-high-em);
+      background: var(--ui-surface-1);
+    }
+    body { min-height: 100vh; display: flex; flex-direction: column; }
+    a { color: inherit; }
+    button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
+    :focus-visible { outline: none; box-shadow: var(--ui-focus-ring); }
+
+    /* ─── Global header (MyTomTom) ───────────────────────────────────────── */
+    .app-header {
+      height: 80px;
+      background: var(--ui-surface-0);
+      border-bottom: 1px solid var(--ui-border-base-em);
+    }
+    .app-header__inner {
+      height: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .app-header__brand { display: flex; align-items: center; gap: 24px; text-decoration: none; }
+    .app-header__sep { width: 1px; height: 28px; background: var(--ui-border-low-em); }
+    .app-header__name {
+      font-family: var(--ui-font-heading);
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 24px;
+    }
+    .app-header__actions { display: flex; align-items: center; gap: 16px; }
+    .icon-btn {
+      width: 44px; height: 44px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: var(--ui-radius-xl);
+      border: 1px solid var(--ui-border-low-em);
+      background: var(--ui-surface-0);
+      transition: background 0.15s;
+    }
+    .icon-btn:hover { background: var(--ui-surface-1); }
+    .icon-btn svg { width: 20px; height: 20px; }
+    .avatar {
+      width: 44px; height: 44px;
+      border-radius: 9999px;
+      background: var(--ui-surface-info);
+      color: var(--ui-text-white);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 14px;
+    }
+
+    /* ─── Sub-bar: back + breadcrumb (as in Edit permissions) ────────────── */
+    .sub-bar { background: var(--ui-surface-0); border-bottom: 1px solid var(--ui-border-low-em); }
+    .sub-bar__inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 14px 56px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; flex: 1; min-width: 0; }
+    .breadcrumb a { color: var(--ui-text-low-em); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--ui-text-high-em); }
+    .breadcrumb__sep { color: var(--ui-text-low-em); display: inline-flex; }
+    .breadcrumb__current {
+      font-family: var(--ui-font-heading);
+      font-weight: 700;
+      color: var(--ui-text-high-em);
+      border-bottom: 2px solid var(--ui-text-high-em);
+      padding-bottom: 2px;
+    }
+
+    /* ─── Buttons (Playbook) ─────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 44px; min-width: 140px; padding: 10px 20px;
+      border-radius: var(--ui-radius-xl);
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 14px; line-height: 20px;
+      text-decoration: none; white-space: nowrap;
+      transition: background 0.15s, box-shadow 0.15s, border-color 0.15s;
+    }
+    .btn svg { width: 18px; height: 18px; }
+    .btn--sm { height: 32px; min-width: 0; padding: 6px 14px; font-size: 12px; line-height: 16px; }
+    .btn--sm svg { width: 14px; height: 14px; }
+    .btn--primary { background: var(--ui-surface-brand-red); color: var(--ui-text-white); }
+    .btn--primary:hover { box-shadow: var(--ui-elevation-e3); background: #C41810; }
+    .btn--secondary { background: var(--ui-surface-0); border: 1px solid var(--ui-border-low-em); }
+    .btn--secondary:hover { background: var(--ui-surface-1); }
+    .btn--tertiary { background: transparent; min-width: 0; }
+    .btn--tertiary:hover { background: var(--ui-surface-1); }
+    .btn--destructive-tertiary { background: transparent; color: var(--ui-text-red-on-base); min-width: 0; }
+    .btn--destructive-tertiary:hover { background: var(--ui-surface-1); }
+    .btn--destructive { background: var(--ui-surface-0); border: 1px solid var(--ui-border-low-em); color: var(--ui-text-red-on-base); }
+    .btn--destructive:hover { background: var(--ui-surface-1); }
+    .btn[aria-disabled="true"] {
+      background: var(--ui-surface-disabled-light-em); color: var(--ui-text-disabled);
+      box-shadow: none; pointer-events: none; border-color: transparent;
+    }
+    .btn .spinner {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Page layout ────────────────────────────────────────────────────── */
+    .page {
+      flex: 1;
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 40px 56px 120px;
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: 40px;
+      align-items: start;
+    }
+    .card {
+      background: var(--ui-surface-0);
+      border-radius: var(--ui-radius-card);
+      padding: 28px 24px;
+    }
+    .main-card { padding: 36px 40px 32px; max-width: 920px; }
+
+    /* ─── Stepper (left panel) ───────────────────────────────────────────── */
+    .stepper__title {
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 14px; line-height: 20px;
+      color: var(--ui-text-med-em);
+      padding: 0 12px 12px;
+    }
+    .stepper__list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .step {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px;
+      border-radius: var(--ui-radius-md);
+    }
+    .step--current { background: var(--ui-surface-1); }
+    .step__dot {
+      flex-shrink: 0;
+      width: 24px; height: 24px; border-radius: 9999px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 12px;
+      border: 1px solid var(--ui-border-med-em);
+      color: var(--ui-text-med-em);
+      background: var(--ui-surface-0);
+    }
+    .step--current .step__dot { border-color: var(--ui-border-primary-high-em); color: var(--ui-text-high-em); }
+    .step--done .step__dot { background: var(--ui-surface-primary); border-color: var(--ui-surface-primary); color: var(--ui-text-white); }
+    .step--paused .step__dot { background: #FEECBA; border-color: var(--ui-surface-warning-accent); color: #7A5A00; }
+    .step--blocked .step__dot { background: var(--ui-surface-red-accent); border-color: var(--ui-border-red-med-em); color: var(--ui-text-red-on-base); }
+    .step__dot svg { width: 14px; height: 14px; }
+    .step__label { font-family: var(--ui-font-heading); font-weight: 700; font-size: 14px; line-height: 20px; }
+    .step--upcoming .step__label { color: var(--ui-text-med-em); }
+    .step__caption { font-size: 12px; line-height: 16px; color: var(--ui-text-med-em); margin-top: 2px; }
+
+    .contract-box {
+      margin-top: 24px;
+      padding: 16px;
+      border-radius: var(--ui-radius-md);
+      background: var(--ui-surface-info-accent);
+      border: 1px solid var(--ui-border-info-med-em);
+    }
+    .contract-box__title { font-family: var(--ui-font-heading); font-weight: 700; font-size: 12px; line-height: 16px; margin-bottom: 10px; color: var(--ui-text-info-on-accent-light); }
+    .contract-box dl { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 12px; line-height: 16px; }
+    .contract-box dt { color: var(--ui-text-med-em); }
+    .contract-box dd { font-weight: 600; text-align: right; white-space: nowrap; }
+
+    /* ─── Typography in main card ────────────────────────────────────────── */
+    .overline {
+      font-size: 12px; line-height: 16px; text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--ui-text-low-em); margin-bottom: 8px;
+    }
+    .h-page {
+      font-family: var(--ui-font-heading); font-weight: 700;
+      font-size: 28px; line-height: 32px; letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .lead { font-size: 14px; line-height: 20px; color: var(--ui-text-med-em); margin-bottom: 28px; max-width: 620px; }
+    .section { padding-top: 24px; margin-top: 24px; border-top: 1px solid var(--ui-border-low-em); }
+    .section:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
+    .h-section { font-family: var(--ui-font-heading); font-weight: 700; font-size: 16px; line-height: 24px; margin-bottom: 4px; }
+    .section__desc { font-size: 14px; line-height: 20px; color: var(--ui-text-med-em); margin-bottom: 16px; }
+
+    /* ─── Inputs (Playbook InputField md) ────────────────────────────────── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 24px; }
+    .form-grid .span-2 { grid-column: span 2; }
+    .field label {
+      display: block;
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 14px; line-height: 20px;
+      padding: 0 0 4px 4px;
+    }
+    .field label .opt { font-family: var(--ui-font-body); font-weight: 400; color: var(--ui-text-low-em); }
+    .input {
+      width: 100%; height: 44px;
+      padding: 12px;
+      border: 1px solid var(--ui-border-low-em);
+      border-radius: var(--ui-radius-md);
+      background: var(--ui-surface-0);
+      font-family: var(--ui-font-body); font-size: 14px; line-height: 20px;
+      color: var(--ui-text-high-em);
+      transition: border-color 0.15s;
+      appearance: none;
+    }
+    .input:hover { border-color: var(--ui-border-med-em); }
+    .input:focus { outline: 2px solid #000; outline-offset: 2px; border-color: var(--ui-border-primary-high-em); box-shadow: none; }
+    .input[aria-invalid="true"] { border-color: var(--ui-border-red-high-em); }
+    .input[readonly] { background: var(--ui-surface-1); color: var(--ui-text-med-em); }
+    select.input {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%235C5C5C' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px;
+    }
+    .hint {
+      display: flex; gap: 6px; align-items: flex-start;
+      padding: 8px 0 0 4px;
+      font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ui-text-med-em);
+    }
+    .hint svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
+    .hint--error { color: var(--ui-text-red-on-base); }
+
+    /* ─── Checkbox (Playbook sm, label+caption) ──────────────────────────── */
+    .product-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .product-count { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ui-text-med-em); }
+    .product-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .pgroup { border: 1px solid var(--ui-border-low-em); border-radius: var(--ui-radius-md); padding: 14px 16px 10px; }
+    .pgroup__head { padding-bottom: 10px; margin-bottom: 6px; border-bottom: 1px solid var(--ui-border-base-em); }
+    .cb { display: flex; align-items: center; gap: 12px; min-height: 32px; cursor: pointer; }
+    .cb input {
+      appearance: none; flex-shrink: 0;
+      width: 16px; height: 16px; border-radius: 5px;
+      border: 1px solid var(--ui-border-low-em);
+      background: var(--ui-surface-0);
+      display: inline-grid; place-content: center;
+      cursor: pointer;
+      transition: border-color 0.12s, background 0.12s;
+    }
+    .cb:hover input { border-color: var(--ui-border-primary-high-em); }
+    .cb input:checked, .cb input:indeterminate { background: var(--ui-text-high-em); border-color: var(--ui-text-high-em); }
+    .cb input:checked::after {
+      content: ""; width: 9px; height: 5px;
+      border-left: 2px solid #fff; border-bottom: 2px solid #fff;
+      transform: rotate(-45deg) translate(1px, -1px);
+    }
+    .cb input:indeterminate::after { content: ""; width: 8px; height: 2px; border-radius: 1px; background: #fff; }
+    .cb input:focus-visible { box-shadow: var(--ui-focus-ring); }
+    .cb__label { font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ui-text-med-em); }
+    .cb input:checked + .cb__label, .cb input:indeterminate + .cb__label { color: var(--ui-text-high-em); }
+    .pgroup__head .cb__label { font-family: var(--ui-font-heading); font-weight: 700; font-size: 14px; line-height: 20px; color: var(--ui-text-high-em); }
+
+    /* ─── Chips / badges ─────────────────────────────────────────────────── */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px;
+      border-radius: var(--ui-radius-lg);
+      border: 1px solid var(--ui-border-low-em);
+      background: var(--ui-surface-0);
+      box-shadow: var(--ui-elevation-e1);
+      font-size: 13px; line-height: 20px; font-weight: 600; color: var(--ui-text-med-em);
+      white-space: nowrap;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 2px 10px;
+      border-radius: var(--ui-radius-sm);
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 12px; line-height: 20px;
+      border: 1px solid;
+    }
+    .badge--pending { background: #FEECBA; border-color: var(--ui-surface-warning-accent); color: #6B4E00; }
+    .badge--ready   { background: var(--ui-surface-success-accent); border-color: var(--ui-border-success-med-em); color: var(--ui-text-success-on-accent-light); }
+    .badge--closed  { background: var(--ui-surface-red-accent); border-color: var(--ui-border-red-med-em); color: var(--ui-text-red-on-accent-light); }
+    .badge--active  { background: var(--ui-surface-success-accent); border-color: var(--ui-border-success-med-em); color: var(--ui-text-success-on-accent-light); }
+    .badge__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* ─── Banners ────────────────────────────────────────────────────────── */
+    .banner {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 14px 16px;
+      border-radius: var(--ui-radius-md);
+      border: 1px solid;
+      font-size: 14px; line-height: 20px;
+      margin-bottom: 24px;
+    }
+    .banner svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .banner strong { font-family: var(--ui-font-heading); font-weight: 700; }
+    .banner--info    { background: var(--ui-surface-info-accent); border-color: var(--ui-border-info-med-em); color: var(--ui-text-info-on-accent-light); }
+    .banner--warning { background: #FFF8E1; border-color: var(--ui-border-warning-high-em); color: #5C4300; }
+
+    /* ─── Summary / review list ──────────────────────────────────────────── */
+    .summary { border: 1px solid var(--ui-border-low-em); border-radius: var(--ui-radius-md); }
+    .summary__row { display: grid; grid-template-columns: 180px 1fr auto; gap: 16px; padding: 16px 20px; align-items: start; }
+    .summary__row + .summary__row { border-top: 1px solid var(--ui-border-low-em); }
+    .summary__key { font-family: var(--ui-font-heading); font-weight: 700; font-size: 14px; line-height: 20px; }
+    .summary__val { font-size: 14px; line-height: 20px; color: var(--ui-text-med-em); }
+    .summary__val strong { color: var(--ui-text-high-em); font-weight: 600; }
+    .link-btn {
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 14px; line-height: 20px;
+      color: var(--ui-text-red-on-base); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+    }
+    .link-btn:hover { text-decoration: underline; }
+
+    .kv { display: grid; grid-template-columns: 180px 1fr; gap: 10px 16px; font-size: 14px; line-height: 20px; }
+    .kv dt { font-family: var(--ui-font-heading); font-weight: 700; }
+    .kv dd { color: var(--ui-text-med-em); }
+
+    /* ─── Card footer ────────────────────────────────────────────────────── */
+    .card-footer {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-top: 32px; padding-top: 24px;
+      border-top: 1px solid var(--ui-border-low-em);
+    }
+    .card-footer__right { display: flex; gap: 12px; margin-left: auto; }
+
+    /* ─── Outcome layouts (pending / closed / created) ───────────────────── */
+    .outcome { text-align: left; }
+    .outcome__icon {
+      width: 56px; height: 56px; border-radius: 9999px;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 20px; border: 1px solid;
+    }
+    .outcome__icon svg { width: 26px; height: 26px; }
+    .outcome__icon--success { background: var(--ui-surface-success-accent); border-color: var(--ui-border-success-med-em); color: var(--ui-text-success-on-accent-light); }
+    .outcome__icon--pending { background: #FEECBA; border-color: var(--ui-surface-warning-accent); color: #6B4E00; }
+    .outcome__icon--closed  { background: var(--ui-surface-red-accent); border-color: var(--ui-border-red-med-em); color: var(--ui-text-red-on-base); }
+    .outcome__status { margin-bottom: 12px; }
+
+    .ref-pill {
+      display: inline-flex; align-items: center; gap: 12px;
+      background: var(--ui-surface-1); border: 1px solid var(--ui-border-low-em);
+      border-radius: var(--ui-radius-sm);
+      padding: 10px 16px; margin-bottom: 28px;
+    }
+    .ref-pill__label { font-size: 12px; line-height: 16px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ui-text-low-em); }
+    .ref-pill__value { font-family: var(--ui-font-heading); font-weight: 700; font-size: 16px; }
+
+    .next-steps { list-style: none; display: flex; flex-direction: column; gap: 14px; margin: 12px 0 0; }
+    .next-step { display: flex; gap: 12px; align-items: flex-start; }
+    .next-step__num {
+      flex-shrink: 0; width: 22px; height: 22px; border-radius: 9999px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--ui-surface-1); border: 1px solid var(--ui-border-med-em);
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 11px; color: var(--ui-text-med-em);
+      margin-top: 1px;
+    }
+    .next-step__text { font-size: 14px; line-height: 20px; color: var(--ui-text-med-em); }
+    .next-step__text strong { color: var(--ui-text-high-em); font-weight: 600; }
+
+    .key-block {
+      border: 1px solid var(--ui-border-low-em);
+      border-radius: var(--ui-radius-md);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .key-block__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .key-block__name { font-family: var(--ui-font-heading); font-weight: 700; font-size: 16px; line-height: 24px; }
+    .key-block__meta { font-size: 12px; line-height: 16px; color: var(--ui-text-med-em); }
+    .key-row {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--ui-surface-1);
+      border-radius: var(--ui-radius-sm);
+      padding: 8px 8px 8px 16px;
+    }
+    .key-row__value { flex: 1; min-width: 0; font-family: var(--ui-font-code); font-weight: 500; font-size: 14px; line-height: 24px; overflow-wrap: anywhere; }
+
+    .am-card {
+      display: flex; gap: 16px; align-items: center;
+      border: 1px solid var(--ui-border-low-em); border-radius: var(--ui-radius-md);
+      padding: 16px 20px; margin-top: 24px;
+    }
+    .am-card .avatar { width: 40px; height: 40px; font-size: 13px; }
+    .am-card__name { font-family: var(--ui-font-heading); font-weight: 700; font-size: 14px; line-height: 20px; }
+    .am-card__role { font-size: 12px; line-height: 16px; color: var(--ui-text-med-em); }
+
+    /* ─── Modal ──────────────────────────────────────────────────────────── */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.48); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .modal {
+      width: min(480px, 100%);
+      background: var(--ui-surface-0);
+      border-radius: var(--ui-radius-card);
+      box-shadow: var(--ui-elevation-e5);
+      padding: 28px;
+    }
+    .modal h2 { font-family: var(--ui-font-heading); font-weight: 700; font-size: 20px; line-height: 24px; margin-bottom: 8px; }
+    .modal p { font-size: 14px; line-height: 20px; color: var(--ui-text-med-em); }
+    .modal__actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+
+    /* ─── Toast ──────────────────────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--ui-surface-primary); color: var(--ui-text-white);
+      padding: 12px 18px; border-radius: var(--ui-radius-md);
+      font-size: 14px; line-height: 20px;
+      box-shadow: var(--ui-elevation-e3);
+      z-index: 400;
+    }
+
+    /* ─── Design notes (prototype only) ──────────────────────────────────── */
+    .dnote {
+      display: none;
+      gap: 10px; align-items: flex-start;
+      margin: 14px 0;
+      padding: 10px 14px;
+      border: 1px dashed var(--note-border);
+      border-radius: 8px;
+      background: var(--note-bg);
+      color: var(--note-text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      font-size: 12px; line-height: 17px;
+    }
+    body.show-notes .dnote { display: flex; }
+    .dnote__tag {
+      flex-shrink: 0;
+      font-size: 10px; line-height: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 0 6px; border-radius: 4px;
+      background: var(--note-border); color: #fff;
+    }
+    .dnote__tag--gap    { background: #B4530A; }
+    .dnote__tag--future { background: #0E7490; }
+    .dnote__tag--assume { background: #6D28D9; }
+    .dnote strong { font-weight: 700; }
+
+    /* ─── Prototype toolbar ──────────────────────────────────────────────── */
+    .proto-bar {
+      position: fixed; bottom: 20px; left: 20px; z-index: 9999;
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      max-width: calc(100vw - 40px);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    }
+    .proto-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 12px;
+      background: rgba(255,255,255,0.94);
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      font-size: 12px; font-weight: 600; color: #555;
+      text-decoration: none; cursor: pointer;
+      backdrop-filter: blur(6px);
+    }
+    .proto-pill:hover { background: #fff; color: #111; }
+    .proto-pill select { font: inherit; font-weight: 600; border: 0; background: transparent; color: #111; cursor: pointer; }
+    .proto-pill--accent { border-color: var(--note-border); color: var(--note-text); }
+    .proto-pill input { accent-color: var(--note-border); }
+
+    /* ─── Responsive ─────────────────────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .page { grid-template-columns: 1fr; padding: 24px 16px 140px; gap: 16px; }
+      .app-header__inner, .sub-bar__inner { padding-left: 16px; padding-right: 16px; }
+      .main-card { padding: 24px 20px; }
+    }
+    @media (max-width: 720px) {
+      .form-grid, .product-groups { grid-template-columns: 1fr; }
+      .form-grid .span-2 { grid-column: auto; }
+      .summary__row { grid-template-columns: 1fr auto; }
+      .summary__val { grid-column: 1 / -1; grid-row: 2; }
+      .kv { grid-template-columns: 1fr; gap: 2px 0; }
+      .kv dd { margin-bottom: 8px; }
+      .card-footer { flex-wrap: wrap; }
+      .app-header__actions .icon-btn:not(:last-of-type) { display: none; }
+      .sub-bar #btn-cancel-top { display: none; }
+    }
+  </style>
+</head>
+<body class="show-notes">
+
+  <!-- ── Global header ───────────────────────────────────────────────────── -->
+  <header class="app-header">
+    <div class="app-header__inner">
+      <a class="app-header__brand" href="index.html" aria-label="MyTomTom home">
+        <svg width="17" height="24" viewBox="0 0 16.574 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M8.28764 24.0001L11.4639 18.5139H5.11133L8.28764 24.0001Z" fill="#DF1B12"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M8.28694 12.5839C5.89835 12.5839 3.95522 10.6459 3.95522 8.26409C3.95522 5.88209 5.89835 3.94415 8.28694 3.94415C10.6755 3.94415 12.6187 5.88209 12.6187 8.26409C12.6187 10.6459 10.6755 12.5839 8.28694 12.5839M8.28694 0C3.7175 0 0 3.70725 0 8.26409C0 12.8208 3.7175 16.528 8.28694 16.528C12.8564 16.528 16.5739 12.8208 16.5739 8.26409C16.5739 3.70725 12.8564 0 8.28694 0" fill="#DF1B12"/>
+        </svg>
+        <span class="app-header__sep" aria-hidden="true"></span>
+        <span class="app-header__name">myTomTom</span>
+      </a>
+      <div class="app-header__actions">
+        <button class="icon-btn" aria-label="Search">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.6"/><path d="M13.5 13.5L17 17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+        <button class="icon-btn" aria-label="Help">
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M7.75 7.75a2.5 2.5 0 1 1 3.38 2.34c-.5.2-.88.66-.88 1.2V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10.25" cy="14.25" r=".75" fill="currentColor"/></svg>
+        </button>
+        <button class="icon-btn" aria-label="Notifications">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M5 8a5 5 0 0 1 10 0v3.5l1.5 2.5h-13L5 11.5V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 16.5a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <span class="avatar" aria-label="John Smith, MapLink Distribution">JS</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Sub-bar ─────────────────────────────────────────────────────────── -->
+  <nav class="sub-bar" aria-label="Breadcrumb">
+    <div class="sub-bar__inner">
+      <button class="icon-btn" aria-label="Back to customers" data-unbuilt="Customers list">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M16 10H4M9 5l-5 5 5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="breadcrumb">
+        <a href="#" data-unbuilt="Home">MapLink Distribution</a>
+        <span class="breadcrumb__sep" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <a href="#" data-unbuilt="Customers list">Customers</a>
+        <span class="breadcrumb__sep" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="breadcrumb__current" id="crumb-current" aria-current="page">Onboard customer</span>
+      </div>
+      <button class="btn btn--secondary" id="btn-cancel-top" data-action="cancel">Cancel onboarding</button>
+    </div>
+  </nav>
+
+  <!-- ── Page ────────────────────────────────────────────────────────────── -->
+  <main class="page">
+
+    <!-- Left: stepper + reseller contract context -->
+    <aside class="card" aria-label="Onboarding progress">
+      <div class="stepper__title">Onboard customer</div>
+      <ol class="stepper__list" id="stepper">
+        <li class="step" data-step="1">
+          <span class="step__dot">1</span>
+          <div><div class="step__label">Customer details</div><div class="step__caption">Company and contact</div></div>
+        </li>
+        <li class="step" data-step="2">
+          <span class="step__dot">2</span>
+          <div><div class="step__label">Contract &amp; products</div><div class="step__caption">Dates and what they can use</div></div>
+        </li>
+        <li class="step" data-step="3">
+          <span class="step__dot">3</span>
+          <div><div class="step__label">Project &amp; review</div><div class="step__caption">Starter project, key and summary</div></div>
+        </li>
+      </ol>
+
+      <div class="contract-box">
+        <div class="contract-box__title">Your TomTom contract</div>
+        <dl>
+          <dt>Contract</dt><dd>RC-2026-0142</dd>
+          <dt>Valid</dt><dd>1 Jan 2026 – 31 Dec 2027</dd>
+          <dt>Licensed products</dt><dd>10</dd>
+          <dt>Customers</dt><dd>12 onboarded</dd>
+        </dl>
+      </div>
+      <div class="dnote"><span class="dnote__tag dnote__tag--assume">Assumption</span><span>Showing the reseller's own contract keeps the limits visible while they fill in the customer's contract (products and dates must fit inside it).</span></div>
+    </aside>
+
+    <!-- Right: screens -->
+    <section class="card main-card" aria-live="polite">
+
+      <!-- ═══ Step 1 — Customer details ═══════════════════════════════════ -->
+      <div data-screen="details">
+        <div class="overline">Step 1 of 3</div>
+        <h1 class="h-page">Customer details</h1>
+        <p class="lead">Tell us who you're onboarding. We'll check whether they already have a TomTom business account before setting anything up.</p>
+
+        <form id="form-details" novalidate>
+          <div class="form-grid">
+            <div class="field span-2">
+              <label for="f-company">Legal company name</label>
+              <input class="input" id="f-company" name="company" autocomplete="organization" required />
+            </div>
+            <div class="field">
+              <label for="f-country">Country</label>
+              <select class="input" id="f-country" name="country" required>
+                <option value="">Select a country</option>
+                <option>Belgium</option><option>France</option><option>Germany</option><option>Italy</option>
+                <option>Netherlands</option><option>Poland</option><option>Spain</option><option>Sweden</option>
+                <option>United Kingdom</option><option>United States</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-ref">Your reference <span class="opt">(optional)</span></label>
+              <input class="input" id="f-ref" name="reference" placeholder="e.g. customer or PO number" />
+              <div class="hint"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v4M8 5v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>Your own ID for this customer. If you have it, it helps TomTom confirm a match faster.</span></div>
+            </div>
+            <div class="field">
+              <label for="f-contact">Contact name</label>
+              <input class="input" id="f-contact" name="contact" autocomplete="name" required />
+            </div>
+            <div class="field">
+              <label for="f-email">Contact's business email</label>
+              <input class="input" id="f-email" name="email" type="email" autocomplete="email" required aria-describedby="hint-email" />
+              <div class="hint" id="hint-email"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 7v4M8 5v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>We use the email domain to check for an existing TomTom account. Personal addresses (Gmail, Outlook…) aren't accepted.</span></div>
+            </div>
+          </div>
+        </form>
+
+        <div class="dnote"><span class="dnote__tag dnote__tag--assume">Assumption</span><span><strong>Check, don't search.</strong> The email domain is the only match key. The reseller never browses or searches organizations and never sees another company's account; they only see the outcome of the check.</span></div>
+        <div class="dnote"><span class="dnote__tag dnote__tag--future">Future</span><span><strong>Self-service match (Start building / Pay as you grow):</strong> onboarding carries on silently and a new business account is created. When end customers can log in, that person sees both identities in an account switcher, with the business account as default. Open: double billing on Pay as you grow, and moving existing keys.</span></div>
+        <div class="dnote"><span class="dnote__tag">RFC037</span><span>The contact email is also the future invite address once end-customer users come in through MyTomTom (D6). Out of scope for this iteration.</span></div>
+
+        <div class="card-footer">
+          <button class="btn btn--tertiary" data-action="cancel">Cancel</button>
+          <div class="card-footer__right">
+            <button class="btn btn--primary" id="btn-details-continue">
+              <span class="btn__label">Continue</span>
+              <svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Pending TomTom confirmation (business match) ═══════════════ -->
+      <div data-screen="pending" class="outcome">
+        <div class="outcome__icon outcome__icon--pending" aria-hidden="true">
+          <svg viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="10" stroke="currentColor" stroke-width="2"/><path d="M13 8v5.5l3.5 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="outcome__status"><span class="badge badge--pending"><span class="badge__dot"></span>Pending TomTom confirmation</span></div>
+        <h1 class="h-page">We need to confirm this customer</h1>
+        <p class="lead"><strong data-bind="company"></strong> already has a TomTom business account. Before you can manage it, TomTom needs to confirm the link. We've saved what you entered, so you won't need to start again.</p>
+
+        <div class="ref-pill"><span class="ref-pill__label">Request</span><span class="ref-pill__value">ONB-104233</span></div>
+
+        <h2 class="h-section">What happens next</h2>
+        <ol class="next-steps">
+          <li class="next-step"><span class="next-step__num">1</span><span class="next-step__text"><strong>TomTom reviews the request</strong>, usually within 2 business days.</span></li>
+          <li class="next-step"><span class="next-step__num">2</span><span class="next-step__text"><strong>You get a notification</strong>, and <span data-bind="company"></span> shows as <em>Ready to continue</em> in Customers.</span></li>
+          <li class="next-step"><span class="next-step__num">3</span><span class="next-step__text"><strong>Pick up where you left off</strong> at Contract &amp; products, or cancel if you no longer need it.</span></li>
+        </ol>
+
+        <div class="dnote"><span class="dnote__tag">RFC037</span><span><strong>Why every business match is reviewed:</strong> (1) consent: the reseller would gain administer rights, including over the customer's own access managers (D4); (2) the customer may be a direct TomTom customer, which is a commercial call; (3) a customer can't have both a corporate parent and a reseller (one managing organization per link). The reseller isn't told which case applies.</span></div>
+        <div class="dnote"><span class="dnote__tag dnote__tag--assume">Assumption</span><span>2-business-day review time and the reviewing team (SCA) are placeholders to confirm. Use the prototype toolbar to simulate TomTom's decision.</span></div>
+
+        <div class="card-footer">
+          <button class="btn btn--destructive-tertiary" data-action="cancel">Cancel onboarding</button>
+          <div class="card-footer__right">
+            <button class="btn btn--secondary" data-unbuilt="Customers list">Back to customers</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Ready to continue (TomTom confirmed) ═══════════════════════ -->
+      <div data-screen="ready" class="outcome">
+        <div class="outcome__icon outcome__icon--success" aria-hidden="true">
+          <svg viewBox="0 0 26 26" fill="none"><path d="M6 13.5l5 5L20.5 8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="outcome__status"><span class="badge badge--ready"><span class="badge__dot"></span>Ready to continue</span></div>
+        <h1 class="h-page">TomTom confirmed <span data-bind="company"></span></h1>
+        <p class="lead">Their existing business account is now linked to MapLink Distribution. Continue to set up their contract, products and starter key.</p>
+
+        <dl class="kv">
+          <dt>Request</dt><dd>ONB-104233 · confirmed 1 Nov 2026</dd>
+          <dt>Customer</dt><dd data-bind="companyLegal"></dd>
+          <dt>Contact</dt><dd><span data-bind="contact"></span> · <span data-bind="email"></span></dd>
+        </dl>
+
+        <div class="dnote"><span class="dnote__tag dnote__tag--assume">Assumption</span><span>TomTom creates the link at confirmation (RFC037 keeps linking as an internal-tooling operation), and the reseller completes the contract and starter key themselves.</span></div>
+
+        <div class="card-footer">
+          <button class="btn btn--destructive-tertiary" data-action="cancel">Cancel onboarding</button>
+          <div class="card-footer__right">
+            <button class="btn btn--primary" data-go="contract">
+              Continue onboarding
+              <svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Closed (direct conflict) ═══════════════════════════════════ -->
+      <div data-screen="closed" class="outcome">
+        <div class="outcome__icon outcome__icon--closed" aria-hidden="true">
+          <svg viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="10" stroke="currentColor" stroke-width="2"/><path d="M6 20L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="outcome__status"><span class="badge badge--closed"><span class="badge__dot"></span>Closed</span></div>
+        <h1 class="h-page">We can't link <span data-bind="company"></span> to your account</h1>
+        <p class="lead">This company's TomTom account can't be managed by a reseller from MyTomTom. Your account manager can explain why and help you find a way forward. Nothing was created.</p>
+
+        <dl class="kv">
+          <dt>Request</dt><dd>ONB-104233 · closed 1 Nov 2026</dd>
+          <dt>Customer</dt><dd data-bind="companyLegal"></dd>
+        </dl>
+
+        <div class="am-card">
+          <span class="avatar" aria-hidden="true">EV</span>
+          <div style="flex:1">
+            <div class="am-card__name">Eva van Dijk</div>
+            <div class="am-card__role">Your TomTom account manager</div>
+          </div>
+          <a class="btn btn--secondary btn--sm" href="#" data-unbuilt="Email to account manager">Email Eva</a>
+        </div>
+
+        <div class="dnote"><span class="dnote__tag dnote__tag--assume">Assumption</span><span>The reason (direct customer, another reseller's customer, corporate group) stays with the account manager, so the reseller isn't shown commercial details about another account.</span></div>
+
+        <div class="card-footer">
+          <span></span>
+          <div class="card-footer__right">
+            <button class="btn btn--secondary" data-unbuilt="Customers list">Back to customers</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Step 2 — Contract & products ═══════════════════════════════ -->
+      <div data-screen="contract">
+        <div class="overline">Step 2 of 3</div>
+        <h1 class="h-page">Contract &amp; products</h1>
+        <p class="lead">Set when <span data-bind="company"></span>'s access starts and ends, and choose the products they can use.</p>
+
+        <div class="banner banner--info" id="banner-linked" hidden>
+          <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v5M10 6.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span><strong>Linked to an existing account.</strong> TomTom confirmed <span data-bind="company"></span>'s business account (request ONB-104233).</span>
+        </div>
+
+        <div class="section">
+          <h2 class="h-section">Contract dates</h2>
+          <p class="section__desc">Access must end by <strong>31 Dec 2027</strong>, when your own TomTom contract ends.</p>
+          <div class="form-grid">
+            <div class="field">
+              <label for="f-start">Start date</label>
+              <input class="input" id="f-start" type="date" min="2026-10-30" max="2027-12-31" required />
+            </div>
+            <div class="field">
+              <label for="f-end">End date</label>
+              <input class="input" id="f-end" type="date" min="2026-10-30" max="2027-12-31" required aria-describedby="hint-end" />
+              <div class="hint" id="hint-end" hidden></div>
+            </div>
+          </div>
+          <div class="dnote"><span class="dnote__tag">RFC037</span><span>Contract linkage is parked in RFC037, and today the customer's access package ends on the <em>reseller's</em> contract end date (D6). A per-customer end date is an assumption this prototype makes.</span></div>
+        </div>
+
+        <div class="section">
+          <h2 class="h-section">Products</h2>
+          <p class="section__desc">You can only provision products that are in your own TomTom contract.</p>
+          <div class="product-toolbar">
+            <span class="product-count" id="product-count">0 of 10 selected</span>
+            <button class="link-btn" type="button" id="btn-select-all">Select all</button>
+          </div>
+          <div class="product-groups" id="product-groups"></div>
+          <div class="hint hint--error" id="hint-products" hidden><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M5.8 5.8l4.4 4.4M10.2 5.8l-4.4 4.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span>Select at least one product.</span></div>
+          <div class="dnote"><span class="dnote__tag">RFC037</span><span>Product modules (analytics, API-key operations beyond read) stay separately granted. Assumption: the reseller admin can create, rotate and delete this customer's keys by default.</span></div>
+        </div>
+
+        <div class="card-footer">
+          <button class="btn btn--secondary" id="btn-contract-back">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M16 10H4M9 5l-5 5 5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Back
+          </button>
+          <div class="card-footer__right">
+            <button class="btn btn--primary" id="btn-contract-continue">
+              Continue
+              <svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Step 3 — Project & review ══════════════════════════════════ -->
+      <div data-screen="project">
+        <div class="overline">Step 3 of 3</div>
+        <h1 class="h-page">Starter project &amp; review</h1>
+        <p class="lead">We'll create a project and an API key so <span data-bind="company"></span> can start right away. Check everything before you create the customer.</p>
+
+        <div class="section">
+          <h2 class="h-section">Starter project</h2>
+          <p class="section__desc">You can add more projects for this customer later.</p>
+          <div class="form-grid">
+            <div class="field span-2">
+              <label for="f-project">Project name</label>
+              <input class="input" id="f-project" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2 class="h-section">Starter API key</h2>
+          <p class="section__desc">Created inside the starter project. It can only call the products on this customer's contract.</p>
+          <div class="form-grid">
+            <div class="field span-2">
+              <label for="f-key">Key name</label>
+              <input class="input" id="f-key" required />
+            </div>
+          </div>
+          <dl class="kv" style="margin-top:20px">
+            <dt>Products</dt><dd><div class="chips" id="key-products"></div></dd>
+            <dt>Allowed domains</dt><dd>None. You can restrict the key to specific domains later in API &amp; SDK Keys.</dd>
+          </dl>
+        </div>
+
+        <div class="section">
+          <h2 class="h-section">Review</h2>
+          <p class="section__desc">This is what will be set up for the customer.</p>
+          <div class="summary">
+            <div class="summary__row">
+              <div class="summary__key">Customer</div>
+              <div class="summary__val"><strong data-bind="companyLegal"></strong><br><span data-bind="country"></span><span id="sum-ref"></span><br><span data-bind="contact"></span> · <span data-bind="email"></span></div>
+              <a class="link-btn" href="#details" id="edit-details">Edit</a>
+            </div>
+            <div class="summary__row">
+              <div class="summary__key">Contract</div>
+              <div class="summary__val" id="sum-dates"></div>
+              <a class="link-btn" href="#contract">Edit</a>
+            </div>
+            <div class="summary__row">
+              <div class="summary__key">Products</div>
+              <div class="summary__val" id="sum-products"></div>
+              <a class="link-btn" href="#contract">Edit</a>
+            </div>
+            <div class="summary__row">
+              <div class="summary__key">Managed by</div>
+              <div class="summary__val"><strong>MapLink Distribution</strong><br>Admins and staff with a customer role can see and manage this customer.</div>
+              <span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dnote"><span class="dnote__tag">RFC037</span><span><strong>Target state.</strong> RFC037 lists partner self-service onboarding as deferred, and creating the link as an internal-tooling (SCA) operation. This step is where the prototype goes beyond the RFC.</span></div>
+        <div class="dnote"><span class="dnote__tag">RFC037</span><span>"Managed by": reseller staff reach the customer through the link via their <em>customer role</em> (viewer / operator / administrator), never as members of the customer organization (D4).</span></div>
+
+        <div class="card-footer">
+          <button class="btn btn--secondary" data-go="contract">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M16 10H4M9 5l-5 5 5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Back
+          </button>
+          <div class="card-footer__right">
+            <button class="btn btn--primary" id="btn-create"><span class="btn__label">Create customer</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Created ════════════════════════════════════════════════════ -->
+      <div data-screen="created" class="outcome">
+        <div class="outcome__icon outcome__icon--success" aria-hidden="true">
+          <svg viewBox="0 0 26 26" fill="none"><path d="M6 13.5l5 5L20.5 8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="outcome__status"><span class="badge badge--active"><span class="badge__dot"></span>Active</span></div>
+        <h1 class="h-page"><span data-bind="company"></span> is ready</h1>
+        <p class="lead">Their organization is linked to MapLink Distribution and their starter key is active. Share the key with <span data-bind="contact"></span> so they can start building.</p>
+
+        <div class="key-block">
+          <div class="key-block__head">
+            <div>
+              <div class="key-block__name" data-bind="keyName"></div>
+              <div class="key-block__meta"><span data-bind="projectName"></span> · <span id="created-product-count"></span></div>
+            </div>
+            <span class="badge badge--active"><span class="badge__dot"></span>Active</span>
+          </div>
+          <div class="key-row">
+            <code class="key-row__value" id="key-value"></code>
+            <button class="btn btn--tertiary btn--sm" id="btn-reveal">Show</button>
+            <button class="btn btn--secondary btn--sm" id="btn-copy">
+              <svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="9" rx="1.2" stroke="currentColor" stroke-width="1.3"/><path d="M3 11V3.5C3 2.67 3.67 2 4.5 2H11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <span>Copy key</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="banner banner--warning">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M10 3L18 17H2L10 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 8v4M10 14.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span><strong>Share this key carefully.</strong> Anyone with it can use the products on <span data-bind="company"></span>'s contract, and usage is invoiced to you.</span>
+        </div>
+        <div class="dnote"><span class="dnote__tag dnote__tag--gap">Known gap</span><span>Secure key sharing isn't solved in this iteration. The reseller still copies the key and sends it themselves, which the Partner portal vision lists as a security problem today ("API keys sent via email").</span></div>
+
+        <h2 class="h-section">What's been set up</h2>
+        <ol class="next-steps">
+          <li class="next-step"><span class="next-step__num">1</span><span class="next-step__text"><strong>Organization</strong>: <span data-bind="company"></span>, managed by MapLink Distribution</span></li>
+          <li class="next-step"><span class="next-step__num">2</span><span class="next-step__text"><strong>Contract</strong>: <span id="created-dates"></span></span></li>
+          <li class="next-step"><span class="next-step__num">3</span><span class="next-step__text"><strong>Project</strong>: <span data-bind="projectName"></span></span></li>
+          <li class="next-step"><span class="next-step__num">4</span><span class="next-step__text"><strong>API key</strong>: <span data-bind="keyName"></span></span></li>
+        </ol>
+
+        <div class="dnote"><span class="dnote__tag dnote__tag--assume">Assumption</span><span>No users are added to the customer: end customers can't log in to MyTomTom yet, and reseller staff get access through customer roles, not membership.</span></div>
+
+        <div class="card-footer">
+          <button class="btn btn--secondary" data-action="restart">Onboard another customer</button>
+          <div class="card-footer__right">
+            <button class="btn btn--primary" data-unbuilt="Customer overview">Go to customer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Cancelled ══════════════════════════════════════════════════ -->
+      <div data-screen="cancelled" class="outcome">
+        <h1 class="h-page">Onboarding cancelled</h1>
+        <p class="lead">Nothing was created, and what you entered has been discarded.</p>
+        <div class="card-footer">
+          <button class="btn btn--secondary" data-unbuilt="Customers list">Back to customers</button>
+          <div class="card-footer__right">
+            <button class="btn btn--primary" data-action="restart">Start again</button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ── Cancel modal ────────────────────────────────────────────────────── -->
+  <div class="modal-backdrop" id="modal-cancel" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-cancel-title">
+      <h2 id="modal-cancel-title">Cancel onboarding?</h2>
+      <p id="modal-cancel-body">What you've entered will be discarded. Nothing has been created yet.</p>
+      <div class="modal__actions">
+        <button class="btn btn--tertiary" id="modal-keep">Keep going</button>
+        <button class="btn btn--destructive" id="modal-confirm">Cancel onboarding</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <!-- ── Prototype toolbar ───────────────────────────────────────────────── -->
+  <div class="proto-bar">
+    <a class="proto-pill" href="index.html">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6L6 1.5L11 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 5V10.5H5V7.5H7V10.5H9.5V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      All pages
+    </a>
+    <label class="proto-pill proto-pill--accent"><input type="checkbox" id="toggle-notes" checked /> Design notes</label>
+    <label class="proto-pill" id="proto-scenario" hidden>
+      Account check result:
+      <select id="scenario-select">
+        <option value="none">No existing account</option>
+        <option value="selfservice">Self-service account (B2C)</option>
+        <option value="business">Business account (B2B)</option>
+      </select>
+    </label>
+    <span id="proto-decision" hidden style="display:contents">
+      <span class="proto-pill" style="cursor:default">Simulate TomTom's decision:</span>
+      <button class="proto-pill" data-simulate="ready">Confirmed</button>
+      <button class="proto-pill" data-simulate="closed">Conflict</button>
+    </span>
+  </div>
+
+  <script>
+    // ── Data ────────────────────────────────────────────────────────────────
+    const PRODUCTS = [
+      { group: 'Maps',     items: ['Map Display API', 'Traffic Flow API'] },
+      { group: 'Routing',  items: ['Routing API', 'Matrix Routing v2 API', 'Waypoint Optimization API'] },
+      { group: 'Search',   items: ['Search API', 'Geocoding API', 'Reverse Geocoding API', 'Batch Search API'] },
+      { group: 'EV',       items: ['EV Charging Stations Availability API'] },
+    ];
+    const ALL_PRODUCTS = PRODUCTS.flatMap(g => g.items);
+    const PERSONAL_DOMAINS = ['gmail.com', 'googlemail.com', 'outlook.com', 'hotmail.com', 'live.com', 'yahoo.com', 'icloud.com', 'me.com', 'proton.me', 'protonmail.com', 'gmx.com', 'gmx.net', 'aol.com'];
+    const KEY = 'Vw9kR2mXq8Lp4ZbN1cT7sHd3Fy6Jg0Ae';
+    const RESELLER_END = '2027-12-31';
+    const TODAY = '2026-10-30';
+
+    const DEFAULT_STATE = {
+      company: 'Voltway Energy B.V.',
+      country: 'Netherlands',
+      reference: '',
+      contact: 'Sanne Bakker',
+      email: 'sanne.bakker@voltwayenergy.com',
+      start: TODAY,
+      end: RESELLER_END,
+      products: [],
+      projectName: '',
+      keyName: '',
+      linkedExisting: false,
+      reached: 1,
+    };
+
+    // ── State (sessionStorage is a convenience; the page works without it) ──
+    let state = load();
+    function load() {
+      try {
+        const s = JSON.parse(sessionStorage.getItem('mtt-onboard') || 'null');
+        if (s) return Object.assign({}, DEFAULT_STATE, s);
+      } catch (e) {}
+      return Object.assign({}, DEFAULT_STATE);
+    }
+    function save() {
+      try { sessionStorage.setItem('mtt-onboard', JSON.stringify(state)); } catch (e) {}
+    }
+    function reset() {
+      state = Object.assign({}, DEFAULT_STATE);
+      save();
+    }
+
+    // ── Helpers ─────────────────────────────────────────────────────────────
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      const [y, m, d] = iso.split('-').map(Number);
+      return `${d} ${MONTHS[m - 1]} ${y}`;
+    }
+    function shortName(company) {
+      return company.replace(/\s+(B\.V\.|N\.V\.|GmbH|Ltd\.?|Inc\.?|S\.A\.|SAS|AB|BV)$/i, '').trim() || company;
+    }
+    function maskKey(k) { return k.slice(0, 6) + '••••••••••••••••••••' + k.slice(-6); }
+
+    let toastTimer;
+    function toast(msg) {
+      const t = $('#toast');
+      t.textContent = msg;
+      t.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
+    }
+
+    function bindAll() {
+      $$('[data-bind]').forEach(el => {
+        const k = el.dataset.bind;
+        el.textContent = k === 'company' ? shortName(state.company)
+          : k === 'companyLegal' ? state.company
+          : (state[k] || '');
+      });
+    }
+
+    // ── Routing ─────────────────────────────────────────────────────────────
+    const SCREEN_STEP = { details: 1, pending: 2, ready: 2, closed: 2, contract: 2, project: 3, created: 4, cancelled: 0 };
+    const CRUMB = { created: 'Customer created', cancelled: 'Onboarding cancelled', closed: 'Request closed' };
+
+    function route() {
+      const params = new URLSearchParams(location.search);
+      if (params.get('scenario')) $('#scenario-select').value = params.get('scenario');
+      if (params.get('fresh') === '1') {
+        reset();
+        params.delete('fresh');
+        history.replaceState(null, '', location.pathname + (params.toString() ? '?' + params : '') + location.hash);
+      }
+
+      let screen = (location.hash || '#details').slice(1);
+      if (!(screen in SCREEN_STEP)) screen = 'details';
+
+      $$('[data-screen]').forEach(el => { el.hidden = el.dataset.screen !== screen; });
+      $('#crumb-current').textContent = CRUMB[screen] || 'Onboard customer';
+      $('#btn-cancel-top').hidden = ['created', 'cancelled', 'closed'].includes(screen);
+      $('#proto-scenario').hidden = screen !== 'details';
+      $('#proto-decision').hidden = screen !== 'pending';
+
+      renderStepper(screen);
+      bindAll();
+      if (screen === 'details') fillDetails();
+      if (screen === 'contract') renderContract();
+      if (screen === 'project') renderProject();
+      if (screen === 'created') renderCreated();
+      $('#edit-details').hidden = state.linkedExisting;
+
+      $('#modal-cancel-body').textContent = screen === 'pending' || screen === 'ready'
+        ? 'Your confirmation request will be withdrawn and what you\'ve entered will be discarded.'
+        : 'What you\'ve entered will be discarded. Nothing has been created yet.';
+      window.scrollTo({ top: 0 });
+    }
+    function go(screen) { location.hash = screen; }
+    window.addEventListener('hashchange', route);
+
+    const CHECK = '<svg viewBox="0 0 14 14" fill="none"><path d="M3 7.5l2.5 2.5L11 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const CLOCK = '<svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M7 4.5V7l1.8 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
+    const STOP = '<svg viewBox="0 0 14 14" fill="none"><path d="M4 4l6 6M10 4l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
+    function renderStepper(screen) {
+      const current = SCREEN_STEP[screen];
+      $$('#stepper .step').forEach(li => {
+        const n = Number(li.dataset.step);
+        const dot = $('.step__dot', li);
+        li.className = 'step';
+        li.removeAttribute('aria-current');
+        if (screen === 'pending' && n === 2) { li.classList.add('step--paused'); dot.innerHTML = CLOCK; return; }
+        if (screen === 'closed' && n === 2)  { li.classList.add('step--blocked'); dot.innerHTML = STOP; return; }
+        if (screen === 'cancelled') { li.classList.add('step--upcoming'); dot.textContent = n; return; }
+        if (n < current) { li.classList.add('step--done'); dot.innerHTML = CHECK; }
+        else if (n === current && !['ready'].includes(screen)) { li.classList.add('step--current'); li.setAttribute('aria-current', 'step'); dot.textContent = n; }
+        else { li.classList.add('step--upcoming'); dot.textContent = n; }
+      });
+      const captions = $$('#stepper .step__caption');
+      captions[1].textContent = screen === 'pending' ? 'Paused: waiting for TomTom'
+        : screen === 'closed' ? 'Closed: contact your account manager'
+        : screen === 'ready' ? 'Ready to continue' : 'Dates and what they can use';
+    }
+
+    // ── Step 1 ──────────────────────────────────────────────────────────────
+    const detailFields = { company: '#f-company', country: '#f-country', reference: '#f-ref', contact: '#f-contact', email: '#f-email' };
+    function fillDetails() {
+      Object.entries(detailFields).forEach(([k, sel]) => { $(sel).value = state[k]; });
+      clearErrors($('#form-details'));
+    }
+    function setError(input, msg) {
+      input.setAttribute('aria-invalid', 'true');
+      let hint = input.parentElement.querySelector('.hint');
+      if (!hint) {
+        hint = document.createElement('div');
+        hint.className = 'hint';
+        input.parentElement.appendChild(hint);
+      }
+      if (!hint.dataset.orig) hint.dataset.orig = hint.innerHTML;
+      hint.classList.add('hint--error');
+      hint.innerHTML = '<svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M5.8 5.8l4.4 4.4M10.2 5.8l-4.4 4.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span></span>';
+      hint.querySelector('span').textContent = msg;
+    }
+    function clearErrors(root) {
+      $$('[aria-invalid="true"]', root).forEach(i => i.removeAttribute('aria-invalid'));
+      $$('.hint--error', root).forEach(h => {
+        h.classList.remove('hint--error');
+        if (h.dataset.orig !== undefined) h.innerHTML = h.dataset.orig;
+        else h.remove();
+      });
+    }
+    function validateDetails() {
+      const form = $('#form-details');
+      clearErrors(form);
+      let first = null;
+      const fail = (sel, msg) => { const el = $(sel); setError(el, msg); first = first || el; };
+      if (!$('#f-company').value.trim()) fail('#f-company', 'Enter the customer\'s legal company name.');
+      if (!$('#f-country').value) fail('#f-country', 'Select a country.');
+      if (!$('#f-contact').value.trim()) fail('#f-contact', 'Enter a contact name.');
+      const email = $('#f-email').value.trim().toLowerCase();
+      const domain = email.split('@')[1] || '';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fail('#f-email', 'Enter a valid email address, like name@company.com.');
+      else if (PERSONAL_DOMAINS.includes(domain)) fail('#f-email', 'Use a business email address. Personal addresses can\'t be matched to a company.');
+      if (first) first.focus();
+      return !first;
+    }
+    $('#btn-details-continue').addEventListener('click', () => {
+      if (!validateDetails()) return;
+      const companyChanged = $('#f-company').value.trim() !== state.company;
+      Object.entries(detailFields).forEach(([k, sel]) => { state[k] = $(sel).value.trim(); });
+      if (companyChanged || !state.projectName) {
+        state.projectName = `${shortName(state.company)} – Production`;
+        state.keyName = `${shortName(state.company)} starter key`;
+      }
+      save();
+
+      const btn = $('#btn-details-continue');
+      const label = btn.innerHTML;
+      btn.setAttribute('aria-disabled', 'true');
+      btn.innerHTML = '<span class="spinner" style="border-color:rgba(0,0,0,.15);border-top-color:#5C5C5C"></span> Checking for existing accounts…';
+      setTimeout(() => {
+        btn.removeAttribute('aria-disabled');
+        btn.innerHTML = label;
+        const scenario = $('#scenario-select').value;
+        if (scenario === 'business') { state.linkedExisting = false; save(); go('pending'); }
+        else { state.linkedExisting = false; save(); go('contract'); }
+      }, 1400);
+    });
+
+    // ── Step 2 ──────────────────────────────────────────────────────────────
+    function renderContract() {
+      $('#banner-linked').hidden = !state.linkedExisting;
+      $('#btn-contract-back').hidden = state.linkedExisting;
+      $('#f-start').value = state.start;
+      $('#f-end').value = state.end;
+      $('#hint-end').hidden = true;
+      $('#f-end').removeAttribute('aria-invalid');
+      $('#hint-products').hidden = true;
+
+      const wrap = $('#product-groups');
+      wrap.innerHTML = '';
+      PRODUCTS.forEach((g, gi) => {
+        const box = document.createElement('fieldset');
+        box.className = 'pgroup';
+        box.style.border = '1px solid var(--ui-border-low-em)';
+        box.innerHTML = `<legend class="sr" style="position:absolute;left:-9999px">${g.group}</legend>
+          <div class="pgroup__head"><label class="cb"><input type="checkbox" data-group="${gi}" /><span class="cb__label">${g.group}</span></label></div>
+          ${g.items.map(p => `<label class="cb"><input type="checkbox" data-product="${p}" ${state.products.includes(p) ? 'checked' : ''} /><span class="cb__label">${p}</span></label>`).join('')}`;
+        wrap.appendChild(box);
+      });
+      syncGroups();
+    }
+    function syncGroups() {
+      $$('#product-groups .pgroup').forEach(box => {
+        const items = $$('[data-product]', box);
+        const n = items.filter(i => i.checked).length;
+        const head = $('[data-group]', box);
+        head.checked = n === items.length;
+        head.indeterminate = n > 0 && n < items.length;
+      });
+      const count = $$('#product-groups [data-product]:checked').length;
+      $('#product-count').textContent = `${count} of ${ALL_PRODUCTS.length} selected`;
+      $('#btn-select-all').textContent = count === ALL_PRODUCTS.length ? 'Clear all' : 'Select all';
+      if (count) $('#hint-products').hidden = true;
+    }
+    $('#product-groups').addEventListener('change', e => {
+      if (e.target.dataset.group !== undefined) {
+        const box = e.target.closest('.pgroup');
+        $$('[data-product]', box).forEach(i => { i.checked = e.target.checked; });
+      }
+      syncGroups();
+    });
+    $('#btn-select-all').addEventListener('click', () => {
+      const all = $$('#product-groups [data-product]');
+      const select = all.some(i => !i.checked);
+      all.forEach(i => { i.checked = select; });
+      syncGroups();
+    });
+    $('#btn-contract-back').addEventListener('click', () => go('details'));
+    $('#btn-contract-continue').addEventListener('click', () => {
+      const start = $('#f-start').value, end = $('#f-end').value;
+      const products = $$('#product-groups [data-product]:checked').map(i => i.dataset.product);
+      let ok = true;
+      const hint = $('#hint-end');
+      $('#f-end').removeAttribute('aria-invalid');
+      hint.hidden = true;
+      let msg = '';
+      if (!start || !end) msg = 'Choose a start and end date.';
+      else if (end <= start) msg = 'The end date must be after the start date.';
+      else if (end > RESELLER_END) msg = 'The end date can\'t be after 31 Dec 2027, when your TomTom contract ends.';
+      else if (start < TODAY) msg = 'The start date can\'t be in the past.';
+      if (msg) {
+        ok = false;
+        $('#f-end').setAttribute('aria-invalid', 'true');
+        hint.className = 'hint hint--error';
+        hint.innerHTML = '<svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M5.8 5.8l4.4 4.4M10.2 5.8l-4.4 4.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span></span>';
+        hint.querySelector('span').textContent = msg;
+        hint.hidden = false;
+      }
+      if (!products.length) { ok = false; $('#hint-products').hidden = false; }
+      if (!ok) return;
+      Object.assign(state, { start, end, products });
+      save();
+      go('project');
+    });
+
+    // ── Step 3 ──────────────────────────────────────────────────────────────
+    function renderProject() {
+      if (!state.products.length) { go('contract'); return; }
+      $('#f-project').value = state.projectName;
+      $('#f-key').value = state.keyName;
+      $('#key-products').innerHTML = state.products.map(p => `<span class="chip">${p}</span>`).join('');
+      $('#sum-ref').textContent = state.reference ? ` · Your reference: ${state.reference}` : '';
+      $('#sum-dates').innerHTML = `<strong>${fmtDate(state.start)} – ${fmtDate(state.end)}</strong>`;
+      $('#sum-products').innerHTML = `<strong>${state.products.length} product${state.products.length > 1 ? 's' : ''}</strong><br>${state.products.join(', ')}`;
+    }
+    $('#btn-create').addEventListener('click', () => {
+      const p = $('#f-project'), k = $('#f-key');
+      clearErrors($('[data-screen="project"]'));
+      if (!p.value.trim()) { setError(p, 'Enter a project name.'); p.focus(); return; }
+      if (!k.value.trim()) { setError(k, 'Enter a key name.'); k.focus(); return; }
+      state.projectName = p.value.trim();
+      state.keyName = k.value.trim();
+      save();
+      const btn = $('#btn-create');
+      btn.setAttribute('aria-disabled', 'true');
+      btn.innerHTML = `<span class="spinner" style="border-color:rgba(0,0,0,.15);border-top-color:#5C5C5C"></span> Setting up ${shortName(state.company)}…`;
+      setTimeout(() => {
+        btn.removeAttribute('aria-disabled');
+        btn.innerHTML = '<span class="btn__label">Create customer</span>';
+        go('created');
+      }, 1600);
+    });
+
+    // ── Created ─────────────────────────────────────────────────────────────
+    let revealed = false;
+    function renderCreated() {
+      revealed = false;
+      $('#key-value').textContent = maskKey(KEY);
+      $('#btn-reveal').textContent = 'Show';
+      $('#created-dates').textContent = `${fmtDate(state.start)} – ${fmtDate(state.end)} · ${state.products.length} product${state.products.length === 1 ? '' : 's'}`;
+      $('#created-product-count').textContent = `${state.products.length} product${state.products.length === 1 ? '' : 's'}`;
+    }
+    $('#btn-reveal').addEventListener('click', () => {
+      revealed = !revealed;
+      $('#key-value').textContent = revealed ? KEY : maskKey(KEY);
+      $('#btn-reveal').textContent = revealed ? 'Hide' : 'Show';
+    });
+    $('#btn-copy').addEventListener('click', () => {
+      const done = () => {
+        const s = $('#btn-copy span');
+        s.textContent = 'Copied';
+        setTimeout(() => { s.textContent = 'Copy key'; }, 1800);
+      };
+      try { navigator.clipboard.writeText(KEY).then(done, done); } catch (e) { done(); }
+    });
+
+    // ── Cancel / restart / unbuilt / simulate ───────────────────────────────
+    const modal = $('#modal-cancel');
+    document.addEventListener('click', e => {
+      const t = e.target.closest('[data-action], [data-unbuilt], [data-go], [data-simulate]');
+      if (!t) return;
+      if (t.dataset.unbuilt) { e.preventDefault(); toast(`${t.dataset.unbuilt} isn't part of this prototype yet.`); return; }
+      if (t.dataset.go) { go(t.dataset.go); return; }
+      if (t.dataset.simulate) {
+        if (t.dataset.simulate === 'ready') { state.linkedExisting = true; save(); }
+        go(t.dataset.simulate);
+        return;
+      }
+      if (t.dataset.action === 'cancel') { modal.hidden = false; $('#modal-keep').focus(); }
+      if (t.dataset.action === 'restart') { reset(); go('details'); route(); }
+    });
+    $('#modal-keep').addEventListener('click', () => { modal.hidden = true; });
+    $('#modal-confirm').addEventListener('click', () => { modal.hidden = true; reset(); go('cancelled'); });
+    modal.addEventListener('click', e => { if (e.target === modal) modal.hidden = true; });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.hidden = true; });
+
+    // ── Design notes toggle (remembered per viewer) ─────────────────────────
+    const notesToggle = $('#toggle-notes');
+    try { if (localStorage.getItem('mtt-notes') === 'off') notesToggle.checked = false; } catch (e) {}
+    function applyNotes() {
+      document.body.classList.toggle('show-notes', notesToggle.checked);
+      try { localStorage.setItem('mtt-notes', notesToggle.checked ? 'on' : 'off'); } catch (e) {}
+    }
+    notesToggle.addEventListener('change', applyNotes);
+    applyNotes();
+
+    route();
+  </script>
+</body>
+</html>
