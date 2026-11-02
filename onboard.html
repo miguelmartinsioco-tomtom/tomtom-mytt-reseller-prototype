@@ -7,6 +7,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@500&display=swap" rel="stylesheet" />
+  <script>
+    // Apply the remembered view before paint so there's no colour flash
+    try { if (localStorage.getItem('mtt-view') === 'wireframe') document.documentElement.classList.add('wireframe'); } catch (e) {}
+  </script>
 
   <style>
     /* ─── Playbook Design Tokens ─────────────────────────────────────────── */
@@ -69,6 +73,58 @@
       --note-border: #8B5CF6;
       --note-text:   #3B2A6B;
     }
+
+    /* ─── Wireframe mode (EDX Playbook "Colors › Wireframe") ─────────────
+       Same components, colours remapped to the info-blue family, no red. */
+    :root.wireframe {
+      --ui-surface-1:             #F5F8FA;
+      --ui-surface-2:             #E6EEF5;
+      --ui-surface-primary:       #004B7F;
+      --ui-surface-brand-red:     #004B7F;
+      --ui-surface-info-accent:   #F5F8FA;
+      --ui-surface-success-accent:#F5F8FA;
+      --ui-surface-red-accent:    #F5F8FA;
+      --ui-surface-disabled-light-em: #E6EEF5;
+
+      --ui-text-high-em:          #004B7F;
+      --ui-text-med-em:           #3F6F96;
+      --ui-text-low-em:           #7A9DBA;
+      --ui-text-disabled:         #A9C0D3;
+      --ui-text-primary-on-base:  #004B7F;
+      --ui-text-info-on-accent-light: #004B7F;
+      --ui-text-success-on-accent-light: #004B7F;
+      --ui-text-red-on-base:      #004B7F;
+      --ui-text-red-on-accent-light: #004B7F;
+
+      --ui-border-base-em:        #E3ECF3;
+      --ui-border-low-em:         #C9D9E4;
+      --ui-border-med-em:         #A9C3D8;
+      --ui-border-high-em:        #7FA3C2;
+      --ui-border-primary-high-em:#004B7F;
+      --ui-border-info-med-em:    #C9D9E4;
+      --ui-border-success-med-em: #C9D9E4;
+      --ui-border-warning-high-em:#C9D9E4;
+      --ui-border-red-med-em:     #C9D9E4;
+      --ui-border-red-high-em:    #004B7F;
+
+      --ui-elevation-e1: none;
+      --ui-elevation-e3: none;
+    }
+    :root.wireframe .card { border: 1px solid var(--ui-border-low-em); }
+    :root.wireframe .app-header__brand path { fill: #004B7F; }
+    :root.wireframe .btn--primary:hover { background: #003255; }
+    :root.wireframe .cb input:checked,
+    :root.wireframe .cb input:indeterminate { background: #276692; border-color: #276692; }
+    /* Statuses lose their colour, so they differ by fill and border style */
+    :root.wireframe .badge { background: var(--ui-surface-0); color: #004B7F; border-color: #7FA3C2; }
+    :root.wireframe .badge--active  { background: #004B7F; border-color: #004B7F; color: #FFFFFF; }
+    :root.wireframe .badge--pending { border-style: dashed; }
+    :root.wireframe .badge--closed  { background: var(--ui-surface-2); color: #7A9DBA; }
+    :root.wireframe .step--paused .step__dot  { background: var(--ui-surface-0); border: 1px dashed #004B7F; color: #004B7F; }
+    :root.wireframe .step--blocked .step__dot { background: var(--ui-surface-2); border-color: #A9C3D8; color: #7A9DBA; }
+    :root.wireframe .outcome__icon { background: var(--ui-surface-1); border-color: var(--ui-border-low-em); color: #004B7F; }
+    :root.wireframe .outcome__icon--pending { border-style: dashed; border-color: #004B7F; }
+    :root.wireframe .banner--warning { background: var(--ui-surface-1); border-color: var(--ui-border-low-em); color: #004B7F; }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     [hidden] { display: none !important; }
@@ -518,6 +574,12 @@
     .proto-pill:hover { background: #fff; color: #111; }
     .proto-pill select { font: inherit; font-weight: 600; border: 0; background: transparent; color: #111; cursor: pointer; }
     .proto-pill--accent { border-color: var(--note-border); color: var(--note-text); }
+    .proto-switch { padding: 3px; gap: 2px; cursor: default; }
+    .proto-switch button {
+      font: inherit; font-weight: 600; color: #555;
+      padding: 4px 10px; border-radius: 16px;
+    }
+    .proto-switch button[aria-pressed="true"] { background: #111; color: #fff; }
     .proto-pill input { accent-color: var(--note-border); }
 
     /* ─── Responsive ─────────────────────────────────────────────────────── */
@@ -976,6 +1038,10 @@
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6L6 1.5L11 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 5V10.5H5V7.5H7V10.5H9.5V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       All pages
     </a>
+    <span class="proto-pill proto-switch" role="group" aria-label="View">
+      <button type="button" data-view="production" aria-pressed="true">Production</button>
+      <button type="button" data-view="wireframe" aria-pressed="false">Wireframe</button>
+    </span>
     <label class="proto-pill proto-pill--accent"><input type="checkbox" id="toggle-notes" checked /> Design notes</label>
     <label class="proto-pill" id="proto-scenario" hidden>
       Account check result:
@@ -1354,6 +1420,15 @@
     }
     notesToggle.addEventListener('change', applyNotes);
     applyNotes();
+
+    // ── Production / Wireframe view (remembered per viewer) ─────────────────
+    function applyView(view) {
+      document.documentElement.classList.toggle('wireframe', view === 'wireframe');
+      $$('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
+      try { localStorage.setItem('mtt-view', view); } catch (e) {}
+    }
+    $$('[data-view]').forEach(b => b.addEventListener('click', () => applyView(b.dataset.view)));
+    applyView(document.documentElement.classList.contains('wireframe') ? 'wireframe' : 'production');
 
     route();
   </script>
