@@ -8,8 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&family=Fira+Code:wght@500&display=swap" rel="stylesheet" />
   <script>
-    // Apply the remembered view before paint so there's no colour flash
-    try { if (localStorage.getItem('mtt-view') === 'wireframe') document.documentElement.classList.add('wireframe'); } catch (e) {}
+    // Screens are always wireframes (hypothetical, sketch form). The blueprint around
+    // the previews keeps the Playbook look, so the class is off in blueprint view.
+    if (!/[?&]view=blueprint/.test(location.search)) document.documentElement.classList.add('wireframe');
+    if (/[?&]embed=1/.test(location.search)) document.documentElement.classList.add('embed');
   </script>
 
   <style>
@@ -67,15 +69,10 @@
       --ui-font-heading: 'Gilroy', 'Nunito', 'Segoe UI', sans-serif;
       --ui-font-body:    'Proxima Nova', 'Inter', 'Segoe UI', sans-serif;
       --ui-font-code:    'Fira Code', ui-monospace, monospace;
-
-      /* Prototype-only annotation colours (deliberately outside Playbook) */
-      --note-bg:     #F4F0FF;
-      --note-border: #8B5CF6;
-      --note-text:   #3B2A6B;
     }
 
-    /* ─── Wireframe mode (EDX Playbook "Colors › Wireframe") ─────────────
-       Same components, colours remapped to the info-blue family, no red. */
+    /* ─── Wireframe styling (EDX Playbook "Colors › Wireframe") ──────────
+       All screens use it: same components, colours remapped to the info-blue family, no red. */
     :root.wireframe {
       --ui-surface-1:             #F5F8FA;
       --ui-surface-2:             #E6EEF5;
@@ -528,59 +525,235 @@
       z-index: 400;
     }
 
-    /* ─── Design notes (prototype only) ──────────────────────────────────── */
-    .dnote {
-      display: none;
-      gap: 10px; align-items: flex-start;
-      margin: 14px 0;
-      padding: 10px 14px;
-      border: 1px dashed var(--note-border);
-      border-radius: 8px;
-      background: var(--note-bg);
-      color: var(--note-text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
-      font-size: 12px; line-height: 17px;
+    /* ─── Annotation tags (blueprint notes) ──────────────────────────────── */
+    .tag {
+      display: inline-flex; align-items: center;
+      padding: 0 6px; margin-right: 4px; vertical-align: 1px;
+      border-radius: var(--ui-radius-sm); border: 1px solid;
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 10px; line-height: 14px;
+      white-space: nowrap;
     }
-    body.show-notes .dnote { display: flex; }
-    .dnote__tag {
-      flex-shrink: 0;
-      font-size: 10px; line-height: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
-      padding: 0 6px; border-radius: 4px;
-      background: var(--note-border); color: #fff;
-    }
-    .dnote__tag--gap    { background: #B4530A; }
-    .dnote__tag--future { background: #0E7490; }
-    .dnote__tag--assume { background: #6D28D9; }
-    .dnote strong { font-weight: 700; }
+    .bp__ref { white-space: nowrap; color: var(--ui-text-low-em); }
+    .bp__ref::before { content: "· "; }
+    .tag--assume { background: var(--ui-surface-1); border-color: var(--ui-border-med-em); color: var(--ui-text-high-em); }
+    .tag--gap    { background: var(--ui-surface-red-accent); border-color: var(--ui-border-red-med-em); color: var(--ui-text-red-on-accent-light); }
+    .tag--future { background: var(--ui-surface-success-accent); border-color: var(--ui-border-success-med-em); color: var(--ui-text-success-on-accent-light); }
+    .tag--open   { background: #FEECBA; border-color: var(--ui-surface-warning-accent); color: #6B4E00; }
 
-    /* ─── Prototype toolbar ──────────────────────────────────────────────── */
+    /* ─── Prototype toolbar (Playbook chips + switchers) ─────────────────── */
     .proto-bar {
       position: fixed; bottom: 20px; left: 20px; z-index: 9999;
       display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
       max-width: calc(100vw - 40px);
-      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      font-family: var(--ui-font-body);
     }
     .proto-pill {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 7px 12px;
-      background: rgba(255,255,255,0.94);
-      border: 1px solid rgba(0,0,0,0.12);
-      border-radius: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-      font-size: 12px; font-weight: 600; color: #555;
+      padding: 6px 12px;
+      background: var(--ui-surface-0);
+      border: 1px solid var(--ui-border-low-em);
+      border-radius: var(--ui-radius-xl);
+      box-shadow: var(--ui-elevation-e3);
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 12px; line-height: 16px;
+      color: var(--ui-text-med-em);
       text-decoration: none; cursor: pointer;
-      backdrop-filter: blur(6px);
     }
-    .proto-pill:hover { background: #fff; color: #111; }
-    .proto-pill select { font: inherit; font-weight: 600; border: 0; background: transparent; color: #111; cursor: pointer; }
-    .proto-pill--accent { border-color: var(--note-border); color: var(--note-text); }
-    .proto-switch { padding: 3px; gap: 2px; cursor: default; }
+    .proto-pill:hover { background: var(--ui-surface-1); color: var(--ui-text-high-em); }
+    .proto-pill select { font: inherit; border: 0; background: transparent; color: var(--ui-text-high-em); cursor: pointer; }
+    /* Playbook Switcher, size sm. The track gets a border and shadow because it floats over the page. */
+    .proto-switch {
+      padding: 2px; gap: 4px; cursor: default;
+      background: var(--ui-surface-1);
+    }
+    .proto-switch:hover { background: var(--ui-surface-1); }
     .proto-switch button {
-      font: inherit; font-weight: 600; color: #555;
-      padding: 4px 10px; border-radius: 16px;
+      font: inherit; color: var(--ui-text-med-em);
+      padding: 6px 12px; border-radius: 32px; border: 1px solid transparent;
+      transition: background 0.12s, box-shadow 0.12s;
     }
-    .proto-switch button[aria-pressed="true"] { background: #111; color: #fff; }
-    .proto-pill input { accent-color: var(--note-border); }
+    .proto-switch button:hover { color: var(--ui-text-high-em); }
+    .proto-switch button[aria-pressed="true"] {
+      background: var(--ui-surface-0); border-color: var(--ui-border-low-em);
+      box-shadow: var(--ui-elevation-e2); color: var(--ui-text-high-em);
+    }
+    :root.wireframe .proto-switch button[aria-pressed="true"] { box-shadow: none; border-color: var(--ui-border-high-em); }
+
+    /* ─── Embed mode: a screen rendered inside a blueprint thumbnail ─────── */
+    :root.embed .proto-bar, :root.embed #bp-view, :root.embed .toast, :root.embed .lightbox { display: none !important; }
+    :root.embed body { overflow: hidden; }
+
+    /* ─── Service blueprint view (prototype only, Playbook tokens) ───────── */
+    body.view-blueprint .app-header,
+    body.view-blueprint .sub-bar,
+    body.view-blueprint .page { display: none; }
+    .bpv {
+      height: 100vh;
+      display: flex; flex-direction: column;
+      background: var(--ui-surface-1);
+      font-family: var(--ui-font-body);
+      color: var(--ui-text-high-em);
+    }
+    .bpv__head { background: var(--ui-surface-0); border-bottom: 1px solid var(--ui-border-low-em); padding: 24px 40px 0; }
+    .bpv__titlebar { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; }
+    .bpv__eyebrow { font-size: 12px; line-height: 16px; text-transform: uppercase; color: var(--ui-text-low-em); }
+    .bpv__title { font-family: var(--ui-font-heading); font-size: 24px; line-height: 32px; font-weight: 700; letter-spacing: -1px; margin: 4px 0 2px; }
+    .bpv__sub { font-size: 14px; line-height: 20px; color: var(--ui-text-med-em); }
+
+    /* Playbook TabNav, size md */
+    .bpv__tabs { display: flex; gap: 24px; margin-top: 20px; overflow-x: auto; }
+    .bpv__tab {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 0 7px; border-bottom: 5px solid transparent;
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 14px; line-height: 20px;
+      color: var(--ui-text-high-em); white-space: nowrap;
+    }
+    .bpv__tab[aria-selected="true"] { border-bottom-color: var(--ui-border-red-high-em); }
+    .bpv__tab:disabled { cursor: not-allowed; color: var(--ui-text-disabled); }
+    .bpv__tab small {
+      font-size: 10px; line-height: 14px; padding: 0 6px;
+      border-radius: var(--ui-radius-sm); background: var(--ui-surface-1); color: var(--ui-text-low-em);
+    }
+
+    .bpv__scroll { flex: 1; overflow: auto; padding-bottom: 72px; }
+    .bp__grid { display: grid; min-width: max-content; }
+    .bp__corner, .bp__lane {
+      position: sticky; left: 0; z-index: 2;
+      background: var(--ui-surface-1);
+      border-right: 1px solid var(--ui-border-low-em); border-bottom: 1px solid var(--ui-border-low-em);
+      padding: 12px 16px;
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 12px; line-height: 16px;
+      color: var(--ui-text-high-em);
+    }
+    .bp__corner { top: 0; z-index: 4; color: var(--ui-text-med-em); }
+    .bp__lane small { display: block; margin-top: 2px; font-family: var(--ui-font-body); font-weight: 400; color: var(--ui-text-low-em); }
+    .bp__col-head {
+      position: sticky; top: 0; z-index: 3;
+      background: var(--ui-surface-0);
+      border-bottom: 1px solid var(--ui-border-low-em); border-right: 1px solid var(--ui-border-base-em);
+      padding: 12px 16px;
+    }
+    .bp__col-num { font-family: var(--ui-font-heading); font-weight: 700; font-size: 10px; line-height: 16px; color: var(--ui-text-low-em); }
+    .bp__col-name { display: block; font-family: var(--ui-font-heading); font-weight: 700; font-size: 14px; line-height: 20px; }
+    .bp__col-head .badge { margin-top: 6px; padding: 0 8px; font-size: 10px; line-height: 18px; gap: 4px; }
+    .bp__col-head .badge__dot { width: 5px; height: 5px; }
+    .bp__origin {
+      display: none; margin-top: 6px; padding: 0 8px;
+      border-radius: var(--ui-radius-sm); border: 1px solid var(--ui-border-red-high-em);
+      background: var(--ui-surface-0); color: var(--ui-text-red-on-base);
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 10px; line-height: 18px;
+    }
+    .bp__col-head.bp__col--origin .bp__origin { display: inline-block; }
+    .bp__col--origin { box-shadow: inset 0 5px 0 var(--ui-border-red-high-em); }
+
+    .bp__cell {
+      border-right: 1px solid var(--ui-border-base-em); border-bottom: 1px solid var(--ui-border-low-em);
+      padding: 12px 16px; font-size: 12px; line-height: 16px; color: var(--ui-text-high-em);
+      background: var(--ui-surface-0);
+    }
+    .bp__cell ul { margin: 0; padding-left: 14px; }
+    .bp__cell li + li { margin-top: 6px; }
+    .bp__cell strong { font-weight: 700; }
+    .bp__cell--empty::before { content: "—"; color: var(--ui-text-disabled); }
+    .bp__cell--future { color: var(--ui-text-med-em); background: var(--ui-surface-info-accent); }
+    .bp__cell--today { color: var(--ui-text-med-em); background: var(--ui-surface-1); }
+    .bp__col--branch { background-image: repeating-linear-gradient(135deg, transparent 0 10px, rgba(253,207,83,0.09) 10px 20px); }
+
+    .bp__flow { grid-column: 2 / -1; border-bottom: 1px solid var(--ui-border-low-em); background: var(--ui-surface-0); padding: 0; }
+    .bp__flow svg { display: block; }
+    .bp__flow text { font-family: var(--ui-font-heading); font-weight: 700; font-size: 12px; fill: var(--ui-text-med-em); }
+    .bp__flow .ink    { stroke: var(--ui-text-high-em); }
+    .bp__flow .branch { stroke: var(--ui-text-med-em); }
+    .bp__flow .hole   { fill: var(--ui-surface-0); }
+    .bp__node        { stroke: var(--ui-text-high-em); fill: var(--ui-surface-0); }
+    .bp__node.has-screen { fill: var(--ui-text-high-em); }
+    .bp__node.is-branch  { stroke: var(--ui-text-med-em); }
+    .bp__node.is-branch.has-screen { fill: var(--ui-text-med-em); }
+    .bp__node.is-origin  { stroke: var(--ui-border-red-high-em); }
+
+    .bp__divider { height: 20px; border-top: 2px dashed var(--ui-border-high-em); background: var(--ui-surface-1); display: flex; align-items: flex-start; }
+    .bp__divider:has(.bp__group-toggle) { height: 36px; align-items: center; }
+    .bp__group-toggle {
+      position: sticky; left: 180px;
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: var(--ui-radius-xl);
+      border: 1px solid var(--ui-border-low-em); background: var(--ui-surface-0);
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 12px; line-height: 16px;
+      color: var(--ui-text-high-em);
+    }
+    .bp__group-toggle:hover { background: var(--ui-surface-1); }
+    .bp__group-toggle[aria-expanded="true"] .bp__chev { transform: rotate(180deg); }
+
+    /* Collapsible lanes */
+    .bp__lane-btn {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+      width: 100%; text-align: left;
+      font: inherit; color: inherit;
+    }
+    .bp__lane:has(.bp__lane-btn) { padding: 0; }
+    .bp__lane-btn { padding: 12px 12px 12px 16px; height: 100%; }
+    .bp__lane-btn:hover { background: var(--ui-surface-2); }
+    .bp__chev { flex-shrink: 0; transition: transform 0.15s; color: var(--ui-text-med-em); }
+    .bp__lane-btn[aria-expanded="false"] .bp__chev { transform: rotate(-90deg); }
+    .bp__lane.is-collapsed small { display: none; }
+    .bp__cell.is-collapsed { padding-top: 8px; padding-bottom: 8px; }
+    .bp__cell.is-collapsed .bp__full,
+    .bp__cell:not(.is-collapsed) .bp__sum { display: none; }
+    .bp__sum { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--ui-text-med-em); }
+    .bp__sum .tag { margin: 0; }
+    .bp__sum-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bp__sum-more { flex-shrink: 0; color: var(--ui-text-low-em); }
+    .bp__divider span {
+      position: sticky; left: 16px; display: inline-block; padding: 0 6px;
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 10px; line-height: 16px;
+      color: var(--ui-text-med-em);
+    }
+
+    .thumbs { display: flex; flex-direction: column; gap: 12px; }
+    .thumb { position: relative; }
+    .thumb__frame {
+      position: relative; overflow: hidden;
+      width: 268px; height: 186px;
+      border: 1px solid var(--ui-border-low-em); border-radius: var(--ui-radius-md);
+      background: var(--ui-surface-1);
+    }
+    .thumb__frame iframe {
+      position: absolute; top: 0; left: 0;
+      width: 1440px; height: 1000px; border: 0;
+      transform: scale(0.1861); transform-origin: 0 0;
+      pointer-events: none;
+    }
+    .thumb__hit {
+      position: absolute; inset: 0; cursor: zoom-in;
+      border-radius: var(--ui-radius-md); transition: box-shadow 0.15s;
+    }
+    .thumb__hit:hover { box-shadow: inset 0 0 0 2px var(--ui-border-primary-high-em); }
+    .thumb__label { margin-top: 8px; font-family: var(--ui-font-heading); font-weight: 700; font-size: 12px; line-height: 16px; }
+    .thumb__label span { font-family: var(--ui-font-body); font-weight: 400; color: var(--ui-text-low-em); }
+    .thumb--placeholder .thumb__frame {
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      padding: 16px; border-style: dashed; border-color: var(--ui-border-med-em);
+      background: var(--ui-surface-0); color: var(--ui-text-low-em); font-size: 12px; line-height: 16px;
+    }
+
+    .bp__foot {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+      padding: 10px 40px; text-align: right;
+      background: var(--ui-surface-0); border-top: 1px solid var(--ui-border-low-em);
+      font-size: 12px; line-height: 16px; color: var(--ui-text-med-em);
+    }
+    .bp__foot strong { font-family: var(--ui-font-heading); font-weight: 700; color: var(--ui-text-high-em); }
+
+    /* Lightbox for an enlarged preview */
+    .lightbox { position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.48); display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .lightbox__box { background: var(--ui-surface-0); border-radius: var(--ui-radius-md); overflow: hidden; box-shadow: var(--ui-elevation-e5); max-width: 100%; }
+    .lightbox__bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 12px 16px; border-bottom: 1px solid var(--ui-border-low-em);
+      font-family: var(--ui-font-heading); font-weight: 700; font-size: 16px; line-height: 24px;
+    }
+    .lightbox__bar > div { display: flex; gap: 8px; }
+    .lightbox__frame { position: relative; overflow: hidden; background: var(--ui-surface-1); }
+    .lightbox__frame iframe { position: absolute; top: 0; left: 0; width: 1440px; height: 1000px; border: 0; transform-origin: 0 0; }
 
     /* ─── Responsive ─────────────────────────────────────────────────────── */
     @media (max-width: 1100px) {
@@ -601,7 +774,7 @@
     }
   </style>
 </head>
-<body class="show-notes">
+<body>
 
   <!-- ── Global header ───────────────────────────────────────────────────── -->
   <header class="app-header">
@@ -676,7 +849,6 @@
           <dt>Customers</dt><dd>12 onboarded</dd>
         </dl>
       </div>
-      <div class="dnote"><span class="dnote__tag dnote__tag--assume">Assumption</span><span>Showing the reseller's own contract keeps the limits visible while they fill in the customer's contract (products and dates must fit inside it).</span></div>
     </aside>
 
     <!-- Right: screens -->
@@ -720,9 +892,6 @@
           </div>
         </form>
 
-        <div class="dnote"><span class="dnote__tag dnote__tag--assume">Assumption</span><span><strong>Check, don't search.</strong> The email domain is the only match key. The reseller never browses or searches organizations and never sees another company's account; they only see the outcome of the check.</span></div>
-        <div class="dnote"><span class="dnote__tag dnote__tag--future">Future</span><span><strong>Self-service match (Start building / Pay as you grow):</strong> onboarding carries on silently and a new business account is created. When end customers can log in, that person sees both identities in an account switcher, with the business account as default. Open: double billing on Pay as you grow, and moving existing keys.</span></div>
-        <div class="dnote"><span class="dnote__tag">RFC037</span><span>The contact email is also the future invite address once end-customer users come in through MyTomTom (D6). Out of scope for this iteration.</span></div>
 
         <div class="card-footer">
           <button class="btn btn--tertiary" data-action="cancel">Cancel</button>
@@ -753,8 +922,6 @@
           <li class="next-step"><span class="next-step__num">3</span><span class="next-step__text"><strong>Pick up where you left off</strong> at Contract &amp; products, or cancel if you no longer need it.</span></li>
         </ol>
 
-        <div class="dnote"><span class="dnote__tag">RFC037</span><span><strong>Why every business match is reviewed:</strong> (1) consent: the reseller would gain administer rights, including over the customer's own access managers (D4); (2) the customer may be a direct TomTom customer, which is a commercial call; (3) a customer can't have both a corporate parent and a reseller (one managing organization per link). The reseller isn't told which case applies.</span></div>
-        <div class="dnote"><span class="dnote__tag dnote__tag--assume">Assumption</span><span>2-business-day review time and the reviewing team (SCA) are placeholders to confirm. Use the prototype toolbar to simulate TomTom's decision.</span></div>
 
         <div class="card-footer">
           <button class="btn btn--destructive-tertiary" data-action="cancel">Cancel onboarding</button>
@@ -779,7 +946,6 @@
           <dt>Contact</dt><dd><span data-bind="contact"></span> · <span data-bind="email"></span></dd>
         </dl>
 
-        <div class="dnote"><span class="dnote__tag dnote__tag--assume">Assumption</span><span>TomTom creates the link at confirmation (RFC037 keeps linking as an internal-tooling operation), and the reseller completes the contract and starter key themselves.</span></div>
 
         <div class="card-footer">
           <button class="btn btn--destructive-tertiary" data-action="cancel">Cancel onboarding</button>
@@ -815,7 +981,6 @@
           <a class="btn btn--secondary btn--sm" href="#" data-unbuilt="Email to account manager">Email Eva</a>
         </div>
 
-        <div class="dnote"><span class="dnote__tag dnote__tag--assume">Assumption</span><span>The reason (direct customer, another reseller's customer, corporate group) stays with the account manager, so the reseller isn't shown commercial details about another account.</span></div>
 
         <div class="card-footer">
           <span></span>
@@ -850,7 +1015,6 @@
               <div class="hint" id="hint-end" hidden></div>
             </div>
           </div>
-          <div class="dnote"><span class="dnote__tag">RFC037</span><span>Contract linkage is parked in RFC037, and today the customer's access package ends on the <em>reseller's</em> contract end date (D6). A per-customer end date is an assumption this prototype makes.</span></div>
         </div>
 
         <div class="section">
@@ -862,7 +1026,6 @@
           </div>
           <div class="product-groups" id="product-groups"></div>
           <div class="hint hint--error" id="hint-products" hidden><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M5.8 5.8l4.4 4.4M10.2 5.8l-4.4 4.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span>Select at least one product.</span></div>
-          <div class="dnote"><span class="dnote__tag">RFC037</span><span>Product modules (analytics, API-key operations beyond read) stay separately granted. Assumption: the reseller admin can create, rotate and delete this customer's keys by default.</span></div>
         </div>
 
         <div class="card-footer">
@@ -938,8 +1101,6 @@
           </div>
         </div>
 
-        <div class="dnote"><span class="dnote__tag">RFC037</span><span><strong>Target state.</strong> RFC037 lists partner self-service onboarding as deferred, and creating the link as an internal-tooling (SCA) operation. This step is where the prototype goes beyond the RFC.</span></div>
-        <div class="dnote"><span class="dnote__tag">RFC037</span><span>"Managed by": reseller staff reach the customer through the link via their <em>customer role</em> (viewer / operator / administrator), never as members of the customer organization (D4).</span></div>
 
         <div class="card-footer">
           <button class="btn btn--secondary" data-go="contract">
@@ -983,7 +1144,6 @@
           <svg viewBox="0 0 20 20" fill="none"><path d="M10 3L18 17H2L10 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 8v4M10 14.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
           <span><strong>Share this key carefully.</strong> Anyone with it can use the products on <span data-bind="company"></span>'s contract, and usage is invoiced to you.</span>
         </div>
-        <div class="dnote"><span class="dnote__tag dnote__tag--gap">Known gap</span><span>Secure key sharing isn't solved in this iteration. The reseller still copies the key and sends it themselves, which the Partner portal vision lists as a security problem today ("API keys sent via email").</span></div>
 
         <h2 class="h-section">What's been set up</h2>
         <ol class="next-steps">
@@ -993,7 +1153,6 @@
           <li class="next-step"><span class="next-step__num">4</span><span class="next-step__text"><strong>API key</strong>: <span data-bind="keyName"></span></span></li>
         </ol>
 
-        <div class="dnote"><span class="dnote__tag dnote__tag--assume">Assumption</span><span>No users are added to the customer: end customers can't log in to MyTomTom yet, and reseller staff get access through customer roles, not membership.</span></div>
 
         <div class="card-footer">
           <button class="btn btn--secondary" data-action="restart">Onboard another customer</button>
@@ -1032,17 +1191,53 @@
 
   <div class="toast" id="toast" role="status" hidden></div>
 
+  <!-- ── Service blueprint view (prototype only) ─────────────────────────── -->
+  <section class="bpv" id="bp-view" aria-label="Service blueprint" hidden>
+    <header class="bpv__head">
+      <div class="bpv__titlebar">
+        <div>
+          <div class="bpv__eyebrow">Service blueprint · draft</div>
+          <h1 class="bpv__title">MyTomTom v1 for Resellers</h1>
+          <div class="bpv__sub">This is a service blueprint artifact that you can use to identify what happens at each step along the way for each user outcome.</div>
+        </div>
+      </div>
+      <nav class="bpv__tabs" role="tablist" aria-label="Journeys">
+        <button class="bpv__tab" role="tab" aria-selected="true">Onboard a customer</button>
+        <button class="bpv__tab" role="tab" aria-selected="false" disabled>Manage contracts<small>later</small></button>
+        <button class="bpv__tab" role="tab" aria-selected="false" disabled>Customer analytics<small>later</small></button>
+        <button class="bpv__tab" role="tab" aria-selected="false" disabled>Own usage<small>later</small></button>
+      </nav>
+    </header>
+    <div class="bpv__scroll" id="bp-scroll">
+      <div class="bp__grid" id="bp-grid"></div>
+    </div>
+    <div class="bp__foot">Cancel is possible at every step before <strong>Create customer</strong>: the draft is discarded and a pending request is withdrawn. Nothing is created until the last step.</div>
+  </section>
+
+  <!-- ── Enlarged screen preview ─────────────────────────────────────────── -->
+  <div class="lightbox" id="lightbox" hidden>
+    <div class="lightbox__box" role="dialog" aria-modal="true" aria-labelledby="lb-title">
+      <div class="lightbox__bar">
+        <strong id="lb-title"></strong>
+        <div>
+          <button class="btn btn--sm btn--primary" id="lb-open" type="button">Open this screen</button>
+          <button class="btn btn--sm btn--secondary" id="lb-close" type="button">Close</button>
+        </div>
+      </div>
+      <div class="lightbox__frame" id="lb-frame"><iframe id="lb-iframe" title="Enlarged screen preview" tabindex="-1"></iframe></div>
+    </div>
+  </div>
+
   <!-- ── Prototype toolbar ───────────────────────────────────────────────── -->
   <div class="proto-bar">
     <a class="proto-pill" href="index.html">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 6L6 1.5L11 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 5V10.5H5V7.5H7V10.5H9.5V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       All pages
     </a>
-    <span class="proto-pill proto-switch" role="group" aria-label="View">
-      <button type="button" data-view="production" aria-pressed="true">Production</button>
-      <button type="button" data-view="wireframe" aria-pressed="false">Wireframe</button>
+    <span class="proto-pill proto-switch" role="group" aria-label="What to show">
+      <button type="button" data-mode="screens" aria-pressed="true">Screens</button>
+      <button type="button" data-mode="blueprint" aria-pressed="false">Blueprint</button>
     </span>
-    <label class="proto-pill proto-pill--accent"><input type="checkbox" id="toggle-notes" checked /> Design notes</label>
     <label class="proto-pill" id="proto-scenario" hidden>
       Account check result:
       <select id="scenario-select">
@@ -1087,8 +1282,18 @@
       reached: 1,
     };
 
+    // Example data for blueprint previews and screens opened from the blueprint
+    const EXAMPLE_STATE = Object.assign({}, DEFAULT_STATE, {
+      products: ['Map Display API', 'Routing API', 'Matrix Routing v2 API', 'Waypoint Optimization API'],
+      projectName: 'Voltway Energy – Production',
+      keyName: 'Voltway Energy starter key',
+    });
+    const PARAMS = new URLSearchParams(location.search);
+    const EMBED = PARAMS.get('embed') === '1';
+
     // ── State (sessionStorage is a convenience; the page works without it) ──
-    let state = load();
+    // A preview never reads or writes the reviewer's own click-through state
+    let state = EMBED ? Object.assign({}, EXAMPLE_STATE) : load();
     function load() {
       try {
         const s = JSON.parse(sessionStorage.getItem('mtt-onboard') || 'null');
@@ -1097,6 +1302,7 @@
       return Object.assign({}, DEFAULT_STATE);
     }
     function save() {
+      if (EMBED) return;
       try { sessionStorage.setItem('mtt-onboard', JSON.stringify(state)); } catch (e) {}
     }
     function reset() {
@@ -1155,8 +1361,8 @@
       $$('[data-screen]').forEach(el => { el.hidden = el.dataset.screen !== screen; });
       $('#crumb-current').textContent = CRUMB[screen] || 'Onboard customer';
       $('#btn-cancel-top').hidden = ['created', 'cancelled', 'closed'].includes(screen);
-      $('#proto-scenario').hidden = screen !== 'details';
-      $('#proto-decision').hidden = screen !== 'pending';
+      $('#proto-scenario').hidden = screen !== 'details' || isBlueprint();
+      $('#proto-decision').hidden = screen !== 'pending' || isBlueprint();
 
       renderStepper(screen);
       bindAll();
@@ -1169,7 +1375,17 @@
       $('#modal-cancel-body').textContent = screen === 'pending' || screen === 'ready'
         ? 'Your confirmation request will be withdrawn and what you\'ve entered will be discarded.'
         : 'What you\'ve entered will be discarded. Nothing has been created yet.';
-      window.scrollTo({ top: 0 });
+
+      if (EMBED) {
+        // The "Account check" preview shows step 1 mid-check
+        if (screen === 'details' && PARAMS.get('checking') === '1') {
+          const btn = $('#btn-details-continue');
+          btn.setAttribute('aria-disabled', 'true');
+          btn.innerHTML = '<span class="spinner" style="border-color:rgba(0,0,0,.15);border-top-color:#5C5C5C"></span> Checking for existing accounts…';
+        }
+        return;
+      }
+      if (!isBlueprint()) window.scrollTo({ top: 0 });
     }
     function go(screen) { location.hash = screen; }
     window.addEventListener('hashchange', route);
@@ -1411,26 +1627,345 @@
     modal.addEventListener('click', e => { if (e.target === modal) modal.hidden = true; });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.hidden = true; });
 
-    // ── Design notes toggle (remembered per viewer) ─────────────────────────
-    const notesToggle = $('#toggle-notes');
-    try { if (localStorage.getItem('mtt-notes') === 'off') notesToggle.checked = false; } catch (e) {}
-    function applyNotes() {
-      document.body.classList.toggle('show-notes', notesToggle.checked);
-      try { localStorage.setItem('mtt-notes', notesToggle.checked ? 'on' : 'off'); } catch (e) {}
-    }
-    notesToggle.addEventListener('change', applyNotes);
-    applyNotes();
 
-    // ── Production / Wireframe view (remembered per viewer) ─────────────────
-    function applyView(view) {
-      document.documentElement.classList.toggle('wireframe', view === 'wireframe');
-      $$('[data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
-      try { localStorage.setItem('mtt-view', view); } catch (e) {}
+    // ── Service blueprint ───────────────────────────────────────────────────
+    // Draft content: our scope decisions plus RFC037. Tags in cell text:
+    // {assume} {gap} {future} {open} become coloured labels; {ref} or {ref:D4} cites RFC037.
+    const BP_COL_W = 300;
+    const BP_LANES = [
+      { key: 'flow',     label: 'Flow', sub: 'Main path and branches' },
+      { key: 'end',      label: 'End customer', sub: 'No MyTomTom login yet' },
+      { key: 'reseller', label: 'Reseller admin', sub: 'Actions' },
+      { divider: 'Line of interaction', group: 'front' },
+      { key: 'screen',   label: 'MyTomTom', sub: 'Frontstage, live previews', group: 'front' },
+      { divider: 'Line of visibility', group: 'back' },
+      { key: 'people',   label: 'TomTom people', sub: 'SCA, account manager', group: 'back' },
+      { key: 'systems',  label: 'Systems', sub: 'Account Mgmt, IAM, API platform', group: 'back' },
+      { key: 'today',    label: 'Today', sub: 'For contrast', group: 'back' },
+      { key: 'notes',    label: 'Notes', sub: 'RFC, assumptions, gaps', group: 'back' },
+    ];
+    const BP_GROUPS = { front: 'front stage', back: 'behind the scenes' };
+    const groupLanes = g => BP_LANES.filter(l => l.key && l.group === g).map(l => l.key);
+    // Front stage starts open, backstage collapsed, so the first read is the journey itself
+    let bpOpen = groupLanes('front');
+    try { const saved = JSON.parse(localStorage.getItem('mtt-bp-lanes')); if (Array.isArray(saved)) bpOpen = saved; } catch (e) {}
+
+    const BP_COLUMNS = [
+      {
+        name: 'Decide to onboard', routes: [], lane: 'main',
+        end: ['Agrees a deal with the reseller, off-platform', 'Has no contract with TomTom of its own'],
+        reseller: ['Closes the deal', 'Opens Overview or Customers and clicks <b>Onboard customer</b>'],
+        thumbs: [{ placeholder: 'Overview / Customers list<br>Not built yet' }],
+        people: ['SCA onboarded the reseller earlier: partner flag, Distributor ID, first customer roles {ref}'],
+        systems: ['Account Management knows the reseller is a partner and holds its contract (licensed products, dates)'],
+        today: ['Reseller asks TomTom to set up each customer (service-portal form or email)'],
+        notes: ['Only staff with a <i>customer operator</i> role see the button; the reseller-admin preset includes operator + administrator {ref:D4}', '{assume} Deal is closed outside MyTomTom; no Salesforce Lead &amp; Opportunity link'],
+      },
+      {
+        name: 'Customer details', routes: ['details'], lane: 'main',
+        end: ['Shares company and contact details with the reseller'],
+        reseller: ['Enters legal name, country, contact name, business email', 'Optionally adds their own reference'],
+        thumbs: [{ hash: 'details', label: 'Step 1: Customer details' }],
+        people: [],
+        systems: ['Rejects personal email domains (Gmail, Outlook…)'],
+        today: ['Details go into a Jira ticket or email to SCA'],
+        notes: ['{assume} Check, don\'t search: the email domain is the only match key; the reseller never browses organizations or sees another company\'s account', '{assume} The left panel shows the reseller\'s own contract on every step, so its limits stay visible', 'The contact email is the future invite address {ref:D6}'],
+      },
+      {
+        name: 'Account check', routes: [], lane: 'main',
+        end: ['Unaware'],
+        reseller: ['Waits a moment ("Checking for existing accounts…")'],
+        thumbs: [{ hash: 'details', checking: true, label: 'Step 1, checking' }],
+        people: [],
+        systems: ['Matches the email domain against business organizations\' recorded domains and self-service accounts', '<b>No match</b> or <b>self-service</b> → continue', '<b>Business match</b> → pause for review'],
+        today: ['SCA checks by hand, if at all'],
+        notes: ['{future} Self-service match: a second, business identity is created; later an account switcher shows both (business as default)', '{open} Double billing on Pay as you grow; who helps move existing keys', 'Company domains come from the provisioning order (RFC033)'],
+      },
+      {
+        name: 'Pending confirmation', routes: ['pending'], lane: 'branch', branch: 'Business match only',
+        end: ['The existing organization\'s admins may need to agree to the link {assume}'],
+        reseller: ['Sees "We need to confirm this customer" and a request reference', 'Leaves; the draft is saved'],
+        thumbs: [{ hash: 'pending', label: 'Pending TomTom confirmation' }],
+        people: ['SCA reviews: consent from the customer, direct-customer contract, corporate-group parent'],
+        systems: ['Saves the draft and opens a review request'],
+        today: ['Not handled: the reseller emails their account manager'],
+        notes: ['Review is needed because reseller admins could remove the customer\'s own access managers, and a customer can\'t have both a parent and a reseller {ref:D4}', '{assume} 2-business-day review; the reseller isn\'t told which case applies', '{open} How the customer\'s consent is asked'],
+      },
+      {
+        name: 'TomTom decision', routes: ['ready', 'closed'], lane: 'branch', branch: 'Business match only',
+        end: ['If closed: stays with its current arrangement'],
+        reseller: ['Gets a notification', '<b>Confirmed</b>: continues onboarding, or cancels', '<b>Conflict</b>: request closed; contacts the account manager'],
+        thumbs: [{ hash: 'ready', label: 'Confirmed: Ready to continue' }, { hash: 'closed', label: 'Conflict: Closed' }],
+        people: ['SCA confirms or closes', 'Account manager handles the conflict conversation'],
+        systems: ['Confirmed: SCA creates the partner link with internal tooling {ref}', 'Closed: nothing is created'],
+        today: [],
+        notes: ['Linking is an internal-tooling operation, so it happens here, at confirmation {ref}', '{assume} "Pending" is a request state, not a link state, since links have no states {ref:D3}', '{assume} The reason for a conflict stays with the account manager; the reseller sees no commercial details about another account', '{open} Notification channel: bell, email, or both'],
+      },
+      {
+        name: 'Contract & products', routes: ['contract'], lane: 'main',
+        end: [],
+        reseller: ['Sets start and end dates', 'Picks products from their own licensed list'],
+        thumbs: [{ hash: 'contract', label: 'Step 2: Contract & products' }],
+        people: [],
+        systems: ['Validates dates inside the reseller\'s contract and products against its licence'],
+        today: ['SCA writes partner attributes on the API platform by hand from a runbook, per customer'],
+        notes: ['Contract linkage is parked; today the customer\'s access package ends on the reseller\'s contract end date. A per-customer end date is our assumption {ref:D6}', 'Product modules (analytics, key operations beyond read) are granted separately. Assumption: the reseller admin can create, rotate and delete this customer\'s keys by default {ref}'],
+      },
+      {
+        name: 'Project & review', routes: ['project'], lane: 'main',
+        end: [],
+        reseller: ['Names the starter project and key', 'Reviews and clicks <b>Create customer</b>'],
+        thumbs: [{ hash: 'project', label: 'Step 3: Starter project & review' }],
+        people: [],
+        systems: [],
+        today: ['GitHub issue to IAM for the access package'],
+        notes: ['Partner self-service onboarding is deferred; this is where the prototype goes beyond the RFC {ref}', '"Managed by": reseller staff reach the customer through customer roles, not membership {ref:D4}'],
+      },
+      {
+        name: 'Customer created', routes: ['created'], lane: 'main',
+        end: [],
+        reseller: ['Sees the starter key', 'Copies it'],
+        thumbs: [{ hash: 'created', label: 'Customer created' }],
+        people: ['None on the happy path'],
+        systems: ['Creates the customer\'s business organization', 'Links it to the reseller (organization link marked partner) {ref}', 'Access package created automatically (CET-4518) {ref}', 'Starter project and API key', 'Partner data synced to the API platform once {ref}'],
+        today: ['Days of manual steps across SCA, IAM and the API platform'],
+        notes: ['{gap} Secure key sharing isn\'t solved: the reseller copies and sends the key themselves', '{assume} No users are added: end customers can\'t log in yet, and reseller staff get access through customer roles', 'If automatic package creation isn\'t live, SCA records the package by hand (CET-4150), making this two steps {ref}', 'API-platform sync is one-shot; after an unlink SCA corrects it by hand {ref}'],
+      },
+      {
+        name: 'Hand over the key', routes: [], lane: 'main',
+        end: ['Receives the key and starts calling the APIs', 'Gets support through the reseller'],
+        reseller: ['Sends the key to the customer outside MyTomTom (email, chat)', 'Monitors the customer from its overview'],
+        thumbs: [{ placeholder: 'Customer overview<br>Not built yet' }],
+        people: ['Help Center can look up who manages this customer {ref}'],
+        systems: ['Usage is attributed to the customer and invoiced to the reseller'],
+        today: ['Key emailed; usage reported back as a spreadsheet'],
+        notes: ['{gap} No secure key handover in this iteration (Partner portal vision: "API keys sent via email")', '{future} End-customer users invited into their own organization (D6)'],
+      },
+    ];
+
+    const CHEVRON = '<svg class="bp__chev" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const BP_TAGS = {
+      assume: '<span class="tag tag--assume">Assumption</span>',
+      gap:    '<span class="tag tag--gap">Known gap</span>',
+      future: '<span class="tag tag--future">Future</span>',
+      open:   '<span class="tag tag--open">Open</span>',
+    };
+    const bpText = s => s
+      .replace(/\{(assume|gap|future|open)\}/g, (_, t) => BP_TAGS[t])
+      // Source citation at the end of a line, e.g. {ref:D4} → "RFC037 D4"
+      .replace(/\s*\{ref(?::(\w+))?\}/g, (_, d) => ` <span class="bp__ref">RFC037${d ? ' ' + d : ''}</span>`);
+    const thumbSrc = t => `onboard.html?embed=1${t.checking ? '&checking=1' : ''}#${t.hash}`;
+
+    // Flow lane: main path on top, the business-match detour forks below
+    function flowSvg() {
+      const n = BP_COLUMNS.length, W = n * BP_COL_W, H = 104, MY = 34, BY = 78;
+      const x = i => i * BP_COL_W + BP_COL_W / 2;
+      const y = i => BP_COLUMNS[i].lane === 'branch' ? BY : MY;
+      let s = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
+      const line = (x1, y1, x2, y2, c = 'ink', dash = '') => `<line class="${c}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke-width="2" ${dash ? `stroke-dasharray="${dash}"` : ''}/>`;
+      const curve = (x1, y1, x2, y2) => `<path class="branch" d="M${x1} ${y1} C ${x1 + 90} ${y1}, ${x2 - 90} ${y2}, ${x2} ${y2}" fill="none" stroke-width="2" stroke-dasharray="6 4"/>`;
+      const label = (lx, ly, t, anchor = 'middle') => `<text x="${lx}" y="${ly}" text-anchor="${anchor}">${t}</text>`;
+      // main path, including the bypass over the branch columns
+      s += line(x(0), MY, x(2), MY) + line(x(2), MY, x(5), MY) + line(x(5), MY, x(n - 1), MY);
+      s += label((x(2) + x(5)) / 2, MY - 10, 'No match or self-service account');
+      // business-match detour
+      s += curve(x(2), MY, x(3), BY) + label(x(2) + 70, BY + 4, 'Business match', 'start');
+      s += line(x(3), BY, x(4), BY, 'branch', '6 4');
+      s += curve(x(4), BY, x(5), MY) + label(x(4) + 150, BY + 4, 'Confirmed');
+      s += line(x(4), BY, x(4) + 60, BY + 18, 'branch', '6 4');
+      s += `<g transform="translate(${x(4) + 68},${BY + 20})"><circle class="branch hole" r="7" stroke-width="2"/><path class="branch" d="M-3.5 -3.5 L3.5 3.5 M3.5 -3.5 L-3.5 3.5" stroke-width="2"/></g>`;
+      s += label(x(4) + 80, BY + 24, 'Conflict: closed', 'start');
+      // nodes
+      BP_COLUMNS.forEach((c, i) => {
+        const cls = ['bp__node'];
+        if (c.routes.length) cls.push('has-screen');
+        if (c.lane === 'branch') cls.push('is-branch');
+        s += `<circle class="${cls.join(' ')}" data-col="${i}" cx="${x(i)}" cy="${y(i)}" r="${c.routes.length ? 8 : 6}" stroke-width="2"/>`;
+      });
+      return s + '</svg>';
     }
-    $$('[data-view]').forEach(b => b.addEventListener('click', () => applyView(b.dataset.view)));
-    applyView(document.documentElement.classList.contains('wireframe') ? 'wireframe' : 'production');
+
+    function renderBlueprint() {
+      const grid = $('#bp-grid');
+      grid.style.gridTemplateColumns = `170px repeat(${BP_COLUMNS.length}, ${BP_COL_W}px)`;
+      let html = '<div class="bp__corner">Stage</div>';
+      BP_COLUMNS.forEach((c, i) => {
+        html += `<div class="bp__col-head${c.branch ? ' bp__col--branch' : ''}" data-col="${i}">
+          <span class="bp__col-num">${i + 1}</span>
+          <span class="bp__col-name">${c.name}</span>
+          ${c.branch ? `<span class="badge badge--pending"><span class="badge__dot"></span>${c.branch}</span> ` : ''}<span class="bp__origin">You came from here</span>
+        </div>`;
+      });
+      BP_LANES.forEach(lane => {
+        if (lane.divider) {
+          const toggle = lane.group
+            ? `<button type="button" class="bp__group-toggle" data-group-toggle="${lane.group}"></button>` : '';
+          html += `<div class="bp__divider" style="grid-column:1 / -1"><span>${lane.divider}</span>${toggle}</div>`;
+          return;
+        }
+        if (lane.group) {
+          html += `<div class="bp__lane" data-lane="${lane.key}"><button type="button" class="bp__lane-btn" data-lane-toggle="${lane.key}">
+            <span>${lane.label}${lane.sub ? `<small>${lane.sub}</small>` : ''}</span>${CHEVRON}</button></div>`;
+        } else {
+          html += `<div class="bp__lane">${lane.label}${lane.sub ? `<small>${lane.sub}</small>` : ''}</div>`;
+        }
+        if (lane.key === 'flow') { html += `<div class="bp__flow">${flowSvg()}</div>`; return; }
+        BP_COLUMNS.forEach((c, i) => {
+          const cls = ['bp__cell'];
+          if (c.branch) cls.push('bp__col--branch');
+          if (lane.key === 'screen') {
+            const thumbs = c.thumbs.map((t, ti) => t.placeholder
+              ? `<div class="thumb thumb--placeholder"><div class="thumb__frame">${t.placeholder}</div></div>`
+              : `<div class="thumb">
+                  <div class="thumb__frame"><iframe data-src="${thumbSrc(t)}" title="Preview: ${t.label}" tabindex="-1" loading="lazy"></iframe>
+                  <button type="button" class="thumb__hit" data-col="${i}" data-thumb="${ti}" aria-label="Enlarge preview: ${t.label}"></button></div>
+                  <div class="thumb__label">${t.label}</div>
+                </div>`).join('');
+            const labels = c.thumbs.map(t => t.label || t.placeholder.replace(/<[^>]+>/g, ' ').trim());
+            const sum = `<span class="bp__sum-text">${labels[0]}</span>${labels.length > 1 ? `<span class="bp__sum-more">+${labels.length - 1}</span>` : ''}`;
+            html += `<div class="${cls.join(' ')}" data-col="${i}" data-lane="screen"><div class="bp__full thumbs">${thumbs}</div><div class="bp__sum">${sum}</div></div>`;
+            return;
+          }
+          const v = c[lane.key];
+          const items = Array.isArray(v) ? v : (v ? [v] : []);
+          if (!items.length) cls.push('bp__cell--empty');
+          if (lane.key === 'today') cls.push('bp__cell--today');
+          if (lane.key === 'end') cls.push('bp__cell--future');
+          let body = !items.length ? ''
+            : items.length === 1 ? bpText(items[0])
+            : `<ul>${items.map(t => `<li>${bpText(t)}</li>`).join('')}</ul>`;
+          if (lane.group && items.length) body = `<div class="bp__full">${body}</div><div class="bp__sum">${bpSummary(lane.key, items)}</div>`;
+          html += `<div class="${cls.join(' ')}" data-col="${i}"${lane.group ? ` data-lane="${lane.key}"` : ''}>${body}</div>`;
+        });
+      });
+      grid.innerHTML = html;
+      applyLanes();
+    }
+
+    // One-line stand-in for a collapsed cell: note counts, or the first item
+    function bpSummary(key, items) {
+      if (key === 'notes') {
+        const count = t => items.filter(s => s.includes(`{${t}}`)).length;
+        const open = count('open'), gap = count('gap');
+        return `${items.length} note${items.length > 1 ? 's' : ''}`
+          + (open ? ` <span class="tag tag--open">${open} open</span>` : '')
+          + (gap ? ` <span class="tag tag--gap">${gap} gap${gap > 1 ? 's' : ''}</span>` : '');
+      }
+      const first = items[0].replace(/\{[^}]*\}/g, '').replace(/<[^>]+>/g, '').trim();
+      return `<span class="bp__sum-text">${first}</span>${items.length > 1 ? `<span class="bp__sum-more">+${items.length - 1}</span>` : ''}`;
+    }
+
+    function applyLanes() {
+      groupLanes('front').concat(groupLanes('back')).forEach(key => {
+        const open = bpOpen.includes(key);
+        $$(`#bp-grid [data-lane="${key}"]`).forEach(el => el.classList.toggle('is-collapsed', !open));
+        const btn = $(`[data-lane-toggle="${key}"]`);
+        if (btn) btn.setAttribute('aria-expanded', String(open));
+      });
+      $$('[data-group-toggle]').forEach(btn => {
+        const g = btn.dataset.groupToggle;
+        const allOpen = groupLanes(g).every(k => bpOpen.includes(k));
+        btn.innerHTML = `${allOpen ? 'Collapse' : 'Expand'} ${BP_GROUPS[g]} ${CHEVRON}`;
+        btn.setAttribute('aria-expanded', String(allOpen));
+      });
+    }
+    function setLanes(open) {
+      bpOpen = open;
+      try { localStorage.setItem('mtt-bp-lanes', JSON.stringify(bpOpen)); } catch (e) {}
+      applyLanes();
+    }
+    $('#bp-grid').addEventListener('click', e => {
+      const lane = e.target.closest('[data-lane-toggle]');
+      if (lane) {
+        const k = lane.dataset.laneToggle;
+        setLanes(bpOpen.includes(k) ? bpOpen.filter(x => x !== k) : [...bpOpen, k]);
+        return;
+      }
+      const group = e.target.closest('[data-group-toggle]');
+      if (group) {
+        const keys = groupLanes(group.dataset.groupToggle);
+        const allOpen = keys.every(k => bpOpen.includes(k));
+        setLanes(allOpen ? bpOpen.filter(k => !keys.includes(k)) : [...new Set([...bpOpen, ...keys])]);
+      }
+    });
+
+    // Thumbnails load only when the blueprint is first opened
+    function loadThumbs() {
+      $$('#bp-grid iframe[data-src]').forEach(f => { f.src = f.dataset.src; f.removeAttribute('data-src'); });
+    }
+
+    function markOrigin(screen) {
+      const idx = BP_COLUMNS.findIndex(c => c.routes.includes(screen));
+      $$('#bp-grid .bp__col-head').forEach(el => el.classList.toggle('bp__col--origin', Number(el.dataset.col) === idx));
+      $$('#bp-grid .bp__node').forEach(el => {
+        const on = Number(el.dataset.col) === idx;
+        el.classList.toggle('is-origin', on);
+        el.setAttribute('r', on ? 11 : (BP_COLUMNS[el.dataset.col].routes.length ? 8 : 6));
+      });
+      if (idx >= 0) $('#bp-scroll').scrollLeft = Math.max(0, idx * BP_COL_W - BP_COL_W / 2);
+    }
+
+    // ── Lightbox ────────────────────────────────────────────────────────────
+    let lbThumb = null;
+    function openLightbox(t) {
+      lbThumb = t;
+      const w = Math.min(1200, window.innerWidth - 48);
+      const scale = w / 1440;
+      const h = Math.min(1000 * scale, window.innerHeight - 120);
+      $('#lb-title').textContent = t.label;
+      $('#lb-frame').style.width = w + 'px';
+      $('#lb-frame').style.height = h + 'px';
+      const f = $('#lb-iframe');
+      f.style.transform = `scale(${scale})`;
+      f.src = thumbSrc(t);
+      $('#lightbox').hidden = false;
+      $('#lb-close').focus();
+    }
+    function closeLightbox() { $('#lightbox').hidden = true; $('#lb-iframe').src = 'about:blank'; }
+    $('#bp-grid').addEventListener('click', e => {
+      const hit = e.target.closest('.thumb__hit');
+      if (hit) openLightbox(BP_COLUMNS[hit.dataset.col].thumbs[hit.dataset.thumb]);
+    });
+    $('#lb-close').addEventListener('click', closeLightbox);
+    $('#lightbox').addEventListener('click', e => { if (e.target.id === 'lightbox') closeLightbox(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#lightbox').hidden) closeLightbox(); });
+    $('#lb-open').addEventListener('click', () => {
+      const t = lbThumb;
+      closeLightbox();
+      // Make sure the screen opens with sensible data, whatever the click-through state
+      if (['project', 'created'].includes(t.hash) && !state.products.length) Object.assign(state, EXAMPLE_STATE);
+      if (t.hash === 'ready') state.linkedExisting = true;
+      save();
+      applyMode('screens');
+      if (location.hash === '#' + t.hash) route(); else go(t.hash);
+    });
+
+    // ── Screens / Blueprint mode (in the URL, so it can be linked) ──────────
+    const isBlueprint = () => document.body.classList.contains('view-blueprint');
+    function applyMode(mode) {
+      const bp = mode === 'blueprint';
+      document.body.classList.toggle('view-blueprint', bp);
+      document.documentElement.classList.toggle('wireframe', !bp);
+      $('#bp-view').hidden = !bp;
+      $$('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+      const params = new URLSearchParams(location.search);
+      if (bp) params.set('view', 'blueprint'); else params.delete('view');
+      history.replaceState(null, '', location.pathname + (params.toString() ? '?' + params : '') + location.hash);
+      if (bp) {
+        $('#proto-scenario').hidden = true;
+        $('#proto-decision').hidden = true;
+        loadThumbs();
+        markOrigin((location.hash || '#details').slice(1));
+      } else {
+        route();
+      }
+    }
+    $$('[data-mode]').forEach(b => b.addEventListener('click', () => applyMode(b.dataset.mode)));
+
+    renderBlueprint();
 
     route();
+    if (!EMBED && PARAMS.get('view') === 'blueprint') applyMode('blueprint');
   </script>
 </body>
 </html>
