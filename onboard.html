@@ -614,7 +614,13 @@
       border-radius: var(--ui-radius-sm); background: var(--ui-surface-1); color: var(--ui-text-low-em);
     }
 
-    .bpv__scroll { flex: 1; overflow: auto; padding-bottom: 72px; }
+    /* The footer sits in the layout (not fixed) so the horizontal scrollbar stays visible above it */
+    .bpv__scroll { flex: 1; min-height: 0; overflow: auto; }
+    .bpv__scroll::-webkit-scrollbar { width: 12px; height: 12px; }
+    .bpv__scroll::-webkit-scrollbar-track { background: var(--ui-surface-1); }
+    .bpv__scroll::-webkit-scrollbar-thumb { background: var(--ui-border-high-em); border-radius: 6px; border: 3px solid var(--ui-surface-1); }
+    .bpv__scroll::-webkit-scrollbar-thumb:hover { background: var(--ui-text-low-em); }
+    .bpv__scroll::-webkit-scrollbar-corner { background: var(--ui-surface-1); }
     .bp__grid { display: grid; min-width: max-content; }
     .bp__corner, .bp__lane {
       position: sticky; left: 0; z-index: 2;
@@ -736,8 +742,9 @@
     }
 
     .bp__foot {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
-      padding: 10px 40px; text-align: right;
+      flex-shrink: 0; min-height: 76px;
+      display: flex; align-items: center; justify-content: flex-end;
+      padding: 10px 40px 10px 360px; text-align: right;
       background: var(--ui-surface-0); border-top: 1px solid var(--ui-border-low-em);
       font-size: 12px; line-height: 16px; color: var(--ui-text-med-em);
     }
@@ -1211,7 +1218,7 @@
     <div class="bpv__scroll" id="bp-scroll">
       <div class="bp__grid" id="bp-grid"></div>
     </div>
-    <div class="bp__foot">Cancel is possible at every step before <strong>Create customer</strong>: the draft is discarded and a pending request is withdrawn. Nothing is created until the last step.</div>
+    <div class="bp__foot"><span>Cancel is possible at every step before <strong>Create customer</strong>: the draft is discarded and a pending request is withdrawn. Nothing is created until the last step.</span></div>
   </section>
 
   <!-- ── Enlarged screen preview ─────────────────────────────────────────── -->
